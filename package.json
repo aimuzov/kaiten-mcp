@@ -1,0 +1,46 @@
+{
+  "name": "kaiten-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for full control over Kaiten: spaces, boards, cards, planning and selections. Built for use in Cowork.",
+  "type": "module",
+  "bin": {
+    "kaiten-mcp": "dist/index.js"
+  },
+  "main": "dist/index.js",
+  "files": [
+    "dist",
+    "README.md",
+    ".env.example"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "start": "node dist/index.js",
+    "dev": "node --watch --import tsx src/index.ts",
+    "smoke": "node --import tsx scripts/smoke.ts",
+    "test:elicit": "node --import tsx scripts/elicit-test.ts",
+    "test": "npm run build && npm run smoke && npm run test:elicit",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "kaiten",
+    "cowork",
+    "kanban"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "axios": "^1.18.0",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}
