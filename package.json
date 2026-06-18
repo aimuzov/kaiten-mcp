@@ -8,5 +8,8 @@
     "build": "npm run build -w @kaiten-mcp/core && npm run build -w kaiten-mcp",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "npm run build && npm run smoke -w kaiten-mcp && npm run test:elicit -w kaiten-mcp"
+  },
+  "overrides": {
+    "@modelcontextprotocol/sdk": "1.29.0"
   }
 }
