@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { sealToken } from "@kaiten-mcp/core";
-import { getAuthSecret, getConfiguredKaitenUrl } from "../../lib/baseUrl";
+import { getAuthSecret, getConfiguredKaitenUrl, isAllowedRedirectUri } from "../../lib/baseUrl";
 
 function escapeHtml(s: string): string {
   return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
@@ -18,6 +18,7 @@ export async function GET(req: Request) {
   const codeChallenge = p.get("code_challenge");
   const state = p.get("state") ?? "";
   if (!redirectUri) return badRequest("нет redirect_uri");
+  if (!isAllowedRedirectUri(redirectUri)) return badRequest("redirect_uri не разрешён");
   if (!codeChallenge || p.get("code_challenge_method") !== "S256") return badRequest("нужен code_challenge с методом S256");
 
   const needUrl = !getConfiguredKaitenUrl();
@@ -49,6 +50,7 @@ export async function POST(req: Request) {
 
   if (!kaitenToken) return new NextResponse("Не указан Kaiten токен", { status: 400 });
   if (!redirectUri || !codeChallenge) return new NextResponse("Битый запрос авторизации", { status: 400 });
+  if (!isAllowedRedirectUri(redirectUri)) return new NextResponse("redirect_uri не разрешён", { status: 400 });
 
   const code = await sealToken(
     { kind: "code", kaitenToken, kaitenUrl, code_challenge: codeChallenge, redirect_uri: redirectUri },

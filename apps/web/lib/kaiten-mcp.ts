@@ -15,7 +15,10 @@ import { getAuthSecret } from "./baseUrl";
 const baseConfig = loadConfig();
 const logger = new Logger({ level: baseConfig.logLevel });
 
-// Маленький кэш клиентов на инстанс (переиспользование между прогревами).
+// Маленький кэш клиентов на инстанс (переиспользование между прогревами Fluid
+// Compute). Ограничен по размеру, чтобы не расти бесконечно на долгоживущем
+// процессе (self-hosted) при множестве пользователей/ротации токенов.
+const MAX_CACHED_CLIENTS = 500;
 const clientCache = new Map<string, KaitenClient>();
 
 function clientForAuth(authInfo: AuthInfo | undefined): KaitenClient {
@@ -25,11 +28,16 @@ function clientForAuth(authInfo: AuthInfo | undefined): KaitenClient {
   if (!rawUrl) throw new Error("Не задан Kaiten URL (ни в токене, ни в KAITEN_API_URL)");
   // URL из формы может прийти без /api/latest — нормализуем (идемпотентно).
   const kaitenUrl = normalizeApiUrl(rawUrl);
-  const cacheKey = `${kaitenUrl}::${kaitenToken}`;
+  const cacheKey = JSON.stringify([kaitenUrl, kaitenToken]);
   let client = clientCache.get(cacheKey);
   if (!client) {
     const credentials = new CredentialsProvider({ apiUrl: kaitenUrl, apiToken: kaitenToken }, logger);
     client = new KaitenClient(baseConfig, credentials, logger);
+    if (clientCache.size >= MAX_CACHED_CLIENTS) {
+      // Вытесняем самый старый (Map хранит порядок вставки).
+      const oldest = clientCache.keys().next().value;
+      if (oldest !== undefined) clientCache.delete(oldest);
+    }
     clientCache.set(cacheKey, client);
   }
   return client;
@@ -37,12 +45,8 @@ function clientForAuth(authInfo: AuthInfo | undefined): KaitenClient {
 
 const baseHandler = createMcpHandler(
   (server) => {
-    // Cast is needed because mcp-handler and @kaiten-mcp/core resolve the SDK
-    // from different node_modules paths, producing nominally incompatible types
-    // for private fields. The types are structurally identical at runtime.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const ctx = makeToolContext({
-      server: server as never,
+      server,
       logger,
       config: baseConfig,
       resolveClient: (extra) =>
