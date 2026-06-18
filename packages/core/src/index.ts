@@ -4,4 +4,5 @@ export { CredentialsProvider, type Credentials } from "./credentials.js";
 export { KaitenClient, KaitenApiError } from "./kaiten-client.js";
 export { registerAllTools } from "./tools/index.js";
 export type { ToolContext } from "./tools/helpers.js";
+export { makeToolContext, run, jsonResult, errorResult, compact } from "./tools/helpers.js";
 export * from "./types.js";

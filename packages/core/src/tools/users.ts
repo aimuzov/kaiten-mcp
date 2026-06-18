@@ -2,7 +2,7 @@ import { z } from "zod";
 import { compact, run, type ToolContext } from "./helpers.js";
 
 export function registerUserTools(ctx: ToolContext): void {
-  const { server, client } = ctx;
+  const { server } = ctx;
 
   server.registerTool(
     "kaiten_get_current_user",
@@ -13,7 +13,7 @@ export function registerUserTools(ctx: ToolContext): void {
         "Полезно, чтобы узнать свой user id для планировочных инструментов.",
       inputSchema: {},
     },
-    () => run(ctx, () => client.getCurrentUser())
+    (_args, extra) => run(ctx, extra, (client) => client.getCurrentUser())
   );
 
   server.registerTool(
@@ -27,6 +27,6 @@ export function registerUserTools(ctx: ToolContext): void {
         offset: z.number().int().nonnegative().optional().describe("Смещение для пагинации"),
       },
     },
-    (args) => run(ctx, () => client.listUsers(compact(args)))
+    (args, extra) => run(ctx, extra, (client) => client.listUsers(compact(args)))
   );
 }

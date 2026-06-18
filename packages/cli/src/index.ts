@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { loadConfig, CredentialsProvider, KaitenClient, Logger, registerAllTools } from "@kaiten-mcp/core";
+import { loadConfig, CredentialsProvider, KaitenClient, Logger, makeToolContext, registerAllTools } from "@kaiten-mcp/core";
 
 const SERVER_NAME = "kaiten-mcp";
 const SERVER_VERSION = "0.1.0";
@@ -90,7 +90,8 @@ async function main(): Promise<void> {
     };
   });
 
-  registerAllTools({ server, client, logger, config });
+  const ctx = makeToolContext({ server, logger, config, resolveClient: () => client });
+  registerAllTools(ctx);
 
   const transport = new StdioServerTransport();
   await server.connect(transport);

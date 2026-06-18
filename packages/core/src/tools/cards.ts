@@ -2,7 +2,7 @@ import { z } from "zod";
 import { compact, run, type ToolContext } from "./helpers.js";
 
 export function registerCardTools(ctx: ToolContext): void {
-  const { server, client } = ctx;
+  const { server } = ctx;
 
   server.registerTool(
     "kaiten_get_card",
@@ -13,7 +13,7 @@ export function registerCardTools(ctx: ToolContext): void {
         card_id: z.number().int().describe("ID карточки"),
       },
     },
-    (args) => run(ctx, () => client.getCard(args.card_id))
+    (args, extra) => run(ctx, extra, (client) => client.getCard(args.card_id))
   );
 
   server.registerTool(
@@ -36,7 +36,7 @@ export function registerCardTools(ctx: ToolContext): void {
         asap: z.boolean().optional().describe("Пометить как срочную (ASAP)"),
       },
     },
-    (args) => run(ctx, () => client.post("/cards", compact(args)))
+    (args, extra) => run(ctx, extra, (client) => client.post("/cards", compact(args)))
   );
 
   server.registerTool(
@@ -59,9 +59,9 @@ export function registerCardTools(ctx: ToolContext): void {
         sort_order: z.number().optional().describe("Позиция сортировки"),
       },
     },
-    (args) => {
+    (args, extra) => {
       const { card_id, ...rest } = args;
-      return run(ctx, () => client.patch(`/cards/${card_id}`, compact(rest)));
+      return run(ctx, extra, (client) => client.patch(`/cards/${card_id}`, compact(rest)));
     }
   );
 
@@ -78,15 +78,15 @@ export function registerCardTools(ctx: ToolContext): void {
         board_id: z.number().int().optional().describe("Целевая доска"),
       },
     },
-    (args) => {
+    (args, extra) => {
       const { card_id, ...rest } = args;
       const payload = compact(rest);
       if (Object.keys(payload).length === 0) {
-        return run(ctx, async () => {
+        return run(ctx, extra, async () => {
           throw new Error("Укажите хотя бы один из: column_id, lane_id, board_id");
         });
       }
-      return run(ctx, () => client.patch(`/cards/${card_id}`, payload));
+      return run(ctx, extra, (client) => client.patch(`/cards/${card_id}`, payload));
     }
   );
 
@@ -99,8 +99,8 @@ export function registerCardTools(ctx: ToolContext): void {
         card_id: z.number().int().describe("ID карточки"),
       },
     },
-    (args) =>
-      run(ctx, async () => {
+    (args, extra) =>
+      run(ctx, extra, async (client) => {
         await client.delete(`/cards/${args.card_id}`);
         return { deleted: true, card_id: args.card_id };
       })
@@ -115,6 +115,6 @@ export function registerCardTools(ctx: ToolContext): void {
         card_id: z.number().int().describe("ID карточки"),
       },
     },
-    (args) => run(ctx, () => client.patch(`/cards/${args.card_id}`, { condition: 2 }))
+    (args, extra) => run(ctx, extra, (client) => client.patch(`/cards/${args.card_id}`, { condition: 2 }))
   );
 }

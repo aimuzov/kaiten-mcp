@@ -2,7 +2,7 @@ import { z } from "zod";
 import { run, type ToolContext } from "./helpers.js";
 
 export function registerLookupTools(ctx: ToolContext): void {
-  const { server, client } = ctx;
+  const { server } = ctx;
 
   server.registerTool(
     "kaiten_list_columns",
@@ -14,7 +14,7 @@ export function registerLookupTools(ctx: ToolContext): void {
         board_id: z.number().int().describe("ID доски"),
       },
     },
-    (args) => run(ctx, () => client.listColumns(args.board_id))
+    (args, extra) => run(ctx, extra, (client) => client.listColumns(args.board_id))
   );
 
   server.registerTool(
@@ -26,7 +26,7 @@ export function registerLookupTools(ctx: ToolContext): void {
         board_id: z.number().int().describe("ID доски"),
       },
     },
-    (args) => run(ctx, () => client.listLanes(args.board_id))
+    (args, extra) => run(ctx, extra, (client) => client.listLanes(args.board_id))
   );
 
   server.registerTool(
@@ -36,7 +36,7 @@ export function registerLookupTools(ctx: ToolContext): void {
       description: "Возвращает доступные типы карточек (card types) компании.",
       inputSchema: {},
     },
-    () => run(ctx, () => client.get("/card-types"))
+    (_args, extra) => run(ctx, extra, (client) => client.get("/card-types"))
   );
 
   server.registerTool(
@@ -46,6 +46,6 @@ export function registerLookupTools(ctx: ToolContext): void {
       description: "Возвращает список тегов компании.",
       inputSchema: {},
     },
-    () => run(ctx, () => client.get("/tags"))
+    (_args, extra) => run(ctx, extra, (client) => client.get("/tags"))
   );
 }

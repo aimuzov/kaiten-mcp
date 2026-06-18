@@ -2,7 +2,7 @@ import { z } from "zod";
 import { run, type ToolContext } from "./helpers.js";
 
 export function registerCommentTools(ctx: ToolContext): void {
-  const { server, client } = ctx;
+  const { server } = ctx;
 
   server.registerTool(
     "kaiten_list_comments",
@@ -13,7 +13,7 @@ export function registerCommentTools(ctx: ToolContext): void {
         card_id: z.number().int().describe("ID карточки"),
       },
     },
-    (args) => run(ctx, () => client.get(`/cards/${args.card_id}/comments`))
+    (args, extra) => run(ctx, extra, (client) => client.get(`/cards/${args.card_id}/comments`))
   );
 
   server.registerTool(
@@ -26,7 +26,7 @@ export function registerCommentTools(ctx: ToolContext): void {
         text: z.string().min(1).describe("Текст комментария"),
       },
     },
-    (args) => run(ctx, () => client.post(`/cards/${args.card_id}/comments`, { text: args.text }))
+    (args, extra) => run(ctx, extra, (client) => client.post(`/cards/${args.card_id}/comments`, { text: args.text }))
   );
 
   server.registerTool(
@@ -40,8 +40,8 @@ export function registerCommentTools(ctx: ToolContext): void {
         text: z.string().min(1).describe("Новый текст"),
       },
     },
-    (args) =>
-      run(ctx, () => client.patch(`/cards/${args.card_id}/comments/${args.comment_id}`, { text: args.text }))
+    (args, extra) =>
+      run(ctx, extra, (client) => client.patch(`/cards/${args.card_id}/comments/${args.comment_id}`, { text: args.text }))
   );
 
   server.registerTool(
@@ -54,8 +54,8 @@ export function registerCommentTools(ctx: ToolContext): void {
         comment_id: z.number().int().describe("ID комментария"),
       },
     },
-    (args) =>
-      run(ctx, async () => {
+    (args, extra) =>
+      run(ctx, extra, async (client) => {
         await client.delete(`/cards/${args.card_id}/comments/${args.comment_id}`);
         return { deleted: true, comment_id: args.comment_id };
       })

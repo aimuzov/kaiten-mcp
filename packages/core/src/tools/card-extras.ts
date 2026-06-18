@@ -3,7 +3,7 @@ import { run, type ToolContext } from "./helpers.js";
 
 /** Управление участниками и тегами карточки. */
 export function registerCardExtraTools(ctx: ToolContext): void {
-  const { server, client } = ctx;
+  const { server } = ctx;
 
   server.registerTool(
     "kaiten_add_card_member",
@@ -15,7 +15,7 @@ export function registerCardExtraTools(ctx: ToolContext): void {
         user_id: z.number().int().describe("ID пользователя"),
       },
     },
-    (args) => run(ctx, () => client.post(`/cards/${args.card_id}/members`, { user_id: args.user_id }))
+    (args, extra) => run(ctx, extra, (client) => client.post(`/cards/${args.card_id}/members`, { user_id: args.user_id }))
   );
 
   server.registerTool(
@@ -28,8 +28,8 @@ export function registerCardExtraTools(ctx: ToolContext): void {
         user_id: z.number().int().describe("ID пользователя"),
       },
     },
-    (args) =>
-      run(ctx, async () => {
+    (args, extra) =>
+      run(ctx, extra, async (client) => {
         await client.delete(`/cards/${args.card_id}/members/${args.user_id}`);
         return { removed: true, user_id: args.user_id };
       })
@@ -45,7 +45,7 @@ export function registerCardExtraTools(ctx: ToolContext): void {
         name: z.string().min(1).describe("Имя тега"),
       },
     },
-    (args) => run(ctx, () => client.post(`/cards/${args.card_id}/tags`, { name: args.name }))
+    (args, extra) => run(ctx, extra, (client) => client.post(`/cards/${args.card_id}/tags`, { name: args.name }))
   );
 
   server.registerTool(
@@ -58,8 +58,8 @@ export function registerCardExtraTools(ctx: ToolContext): void {
         tag_id: z.number().int().describe("ID тега"),
       },
     },
-    (args) =>
-      run(ctx, async () => {
+    (args, extra) =>
+      run(ctx, extra, async (client) => {
         await client.delete(`/cards/${args.card_id}/tags/${args.tag_id}`);
         return { removed: true, tag_id: args.tag_id };
       })

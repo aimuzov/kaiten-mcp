@@ -4,19 +4,33 @@ import type { Config } from "../config.js";
 import type { KaitenClient } from "../kaiten-client.js";
 import type { Logger } from "../logger.js";
 
-/** Общий контекст, доступный всем модулям инструментов. */
+/** Доп. контекст вызова инструмента (extra из MCP SDK). */
+export type ToolExtra = unknown;
+
 export interface ToolContext {
   server: McpServer;
-  client: KaitenClient;
   logger: Logger;
   config: Config;
+  /** Резолвит клиента Kaiten для конкретного вызова. */
+  getClient(extra: ToolExtra): KaitenClient;
 }
 
-/** Форматирует данные как текстовый JSON-результат инструмента. */
-export function jsonResult(data: unknown): CallToolResult {
+export function makeToolContext(input: {
+  server: McpServer;
+  logger: Logger;
+  config: Config;
+  resolveClient: (extra: ToolExtra) => KaitenClient;
+}): ToolContext {
   return {
-    content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
+    server: input.server,
+    logger: input.logger,
+    config: input.config,
+    getClient: input.resolveClient,
   };
+}
+
+export function jsonResult(data: unknown): CallToolResult {
+  return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
 }
 
 /** Текстовый результат (без JSON-обёртки). */
@@ -24,18 +38,19 @@ export function textResult(text: string): CallToolResult {
   return { content: [{ type: "text", text }] };
 }
 
-/** Результат-ошибка инструмента. */
 export function errorResult(message: string): CallToolResult {
   return { content: [{ type: "text", text: message }], isError: true };
 }
 
-/**
- * Выполняет асинхронную операцию инструмента, превращая результат в JSON
- * и аккуратно обрабатывая ошибки (в т.ч. ошибки Kaiten API).
- */
-export async function run(ctx: ToolContext, fn: () => Promise<unknown>): Promise<CallToolResult> {
+/** Выполняет операцию инструмента: резолвит клиент из extra, ловит ошибки. */
+export async function run(
+  ctx: ToolContext,
+  extra: ToolExtra,
+  fn: (client: KaitenClient) => Promise<unknown>
+): Promise<CallToolResult> {
   try {
-    return jsonResult(await fn());
+    const client = ctx.getClient(extra);
+    return jsonResult(await fn(client));
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     ctx.logger.error("Tool execution failed", { message });

@@ -2,7 +2,7 @@ import { z } from "zod";
 import { compact, run, type ToolContext } from "./helpers.js";
 
 export function registerTimeLogTools(ctx: ToolContext): void {
-  const { server, client } = ctx;
+  const { server } = ctx;
 
   server.registerTool(
     "kaiten_list_time_logs",
@@ -13,7 +13,7 @@ export function registerTimeLogTools(ctx: ToolContext): void {
         card_id: z.number().int().describe("ID карточки"),
       },
     },
-    (args) => run(ctx, () => client.get(`/cards/${args.card_id}/time-logs`))
+    (args, extra) => run(ctx, extra, (client) => client.get(`/cards/${args.card_id}/time-logs`))
   );
 
   server.registerTool(
@@ -29,9 +29,9 @@ export function registerTimeLogTools(ctx: ToolContext): void {
         role_id: z.number().int().optional().describe("ID роли (если используется учёт по ролям)"),
       },
     },
-    (args) => {
+    (args, extra) => {
       const { card_id, ...rest } = args;
-      return run(ctx, () => client.post(`/cards/${card_id}/time-logs`, compact(rest)));
+      return run(ctx, extra, (client) => client.post(`/cards/${card_id}/time-logs`, compact(rest)));
     }
   );
 
@@ -45,8 +45,8 @@ export function registerTimeLogTools(ctx: ToolContext): void {
         time_log_id: z.number().int().describe("ID записи учёта времени"),
       },
     },
-    (args) =>
-      run(ctx, async () => {
+    (args, extra) =>
+      run(ctx, extra, async (client) => {
         await client.delete(`/cards/${args.card_id}/time-logs/${args.time_log_id}`);
         return { deleted: true, time_log_id: args.time_log_id };
       })

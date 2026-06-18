@@ -2,7 +2,7 @@ import { z } from "zod";
 import { compact, run, type ToolContext } from "./helpers.js";
 
 export function registerChecklistTools(ctx: ToolContext): void {
-  const { server, client } = ctx;
+  const { server } = ctx;
 
   server.registerTool(
     "kaiten_list_checklists",
@@ -13,7 +13,7 @@ export function registerChecklistTools(ctx: ToolContext): void {
         card_id: z.number().int().describe("ID карточки"),
       },
     },
-    (args) => run(ctx, () => client.get(`/cards/${args.card_id}/checklists`))
+    (args, extra) => run(ctx, extra, (client) => client.get(`/cards/${args.card_id}/checklists`))
   );
 
   server.registerTool(
@@ -26,7 +26,7 @@ export function registerChecklistTools(ctx: ToolContext): void {
         name: z.string().min(1).describe("Название чек-листа"),
       },
     },
-    (args) => run(ctx, () => client.post(`/cards/${args.card_id}/checklists`, { name: args.name }))
+    (args, extra) => run(ctx, extra, (client) => client.post(`/cards/${args.card_id}/checklists`, { name: args.name }))
   );
 
   server.registerTool(
@@ -40,8 +40,8 @@ export function registerChecklistTools(ctx: ToolContext): void {
         text: z.string().min(1).describe("Текст пункта"),
       },
     },
-    (args) =>
-      run(ctx, () =>
+    (args, extra) =>
+      run(ctx, extra, (client) =>
         client.post(`/cards/${args.card_id}/checklists/${args.checklist_id}/items`, { text: args.text })
       )
   );
@@ -59,9 +59,9 @@ export function registerChecklistTools(ctx: ToolContext): void {
         checked: z.boolean().optional().describe("Отметить выполненным/невыполненным"),
       },
     },
-    (args) => {
+    (args, extra) => {
       const { card_id, checklist_id, item_id, ...rest } = args;
-      return run(ctx, () =>
+      return run(ctx, extra, (client) =>
         client.patch(`/cards/${card_id}/checklists/${checklist_id}/items/${item_id}`, compact(rest))
       );
     }
@@ -78,8 +78,8 @@ export function registerChecklistTools(ctx: ToolContext): void {
         item_id: z.number().int().describe("ID пункта"),
       },
     },
-    (args) =>
-      run(ctx, async () => {
+    (args, extra) =>
+      run(ctx, extra, async (client) => {
         await client.delete(`/cards/${args.card_id}/checklists/${args.checklist_id}/items/${args.item_id}`);
         return { deleted: true, item_id: args.item_id };
       })
