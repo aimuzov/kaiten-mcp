@@ -6,3 +6,4 @@ export { registerAllTools } from "./tools/index.js";
 export type { ToolContext } from "./tools/helpers.js";
 export { makeToolContext, run, jsonResult, errorResult, compact } from "./tools/helpers.js";
 export * from "./types.js";
+export { sealToken, openToken, type TokenPayload } from "./auth/tokens.js";
