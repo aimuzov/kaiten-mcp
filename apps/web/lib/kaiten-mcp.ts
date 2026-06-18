@@ -8,6 +8,7 @@ import {
   registerAllTools,
   openToken,
   loadConfig,
+  normalizeApiUrl,
 } from "@kaiten-mcp/core";
 import { getAuthSecret } from "./baseUrl";
 
@@ -19,9 +20,11 @@ const clientCache = new Map<string, KaitenClient>();
 
 function clientForAuth(authInfo: AuthInfo | undefined): KaitenClient {
   const kaitenToken = authInfo?.extra?.kaitenToken as string | undefined;
-  const kaitenUrl = (authInfo?.extra?.kaitenUrl as string | undefined) ?? baseConfig.apiUrl;
+  const rawUrl = (authInfo?.extra?.kaitenUrl as string | undefined) ?? baseConfig.apiUrl;
   if (!kaitenToken) throw new Error("Нет учётных данных Kaiten в токене доступа");
-  if (!kaitenUrl) throw new Error("Не задан Kaiten URL (ни в токене, ни в KAITEN_API_URL)");
+  if (!rawUrl) throw new Error("Не задан Kaiten URL (ни в токене, ни в KAITEN_API_URL)");
+  // URL из формы может прийти без /api/latest — нормализуем (идемпотентно).
+  const kaitenUrl = normalizeApiUrl(rawUrl);
   const cacheKey = `${kaitenUrl}::${kaitenToken}`;
   let client = clientCache.get(cacheKey);
   if (!client) {
