@@ -1,0 +1,5 @@
+{
+  "buildCommand": "npm run build -w @kaiten-mcp/web",
+  "outputDirectory": "apps/web/.next",
+  "framework": "nextjs"
+}

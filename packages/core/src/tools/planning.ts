@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { KaitenClient } from "../kaiten-client.js";
 import type { KaitenCard } from "../types.js";
 import { compact, run, type ToolContext } from "./helpers.js";
 
@@ -78,17 +79,17 @@ const baseFilterShape = {
   limit: z.number().int().positive().max(1000).optional().describe("Лимит выборки (по умолч. 500)"),
 } as const;
 
-async function resolveUserId(ctx: ToolContext, userId?: number): Promise<number> {
+async function resolveUserId(client: KaitenClient, userId?: number): Promise<number> {
   if (userId !== undefined) return userId;
-  const me = await ctx.client.getCurrentUser();
+  const me = await client.getCurrentUser();
   return me.id;
 }
 
 async function fetchUserCards(
-  ctx: ToolContext,
+  client: KaitenClient,
   opts: { user_id?: number; space_id?: number; board_id?: number; role?: string; limit?: number }
 ): Promise<KaitenCard[]> {
-  const userId = await resolveUserId(ctx, opts.user_id);
+  const userId = await resolveUserId(client, opts.user_id);
   const role = opts.role ?? "responsible";
   const params: Record<string, unknown> = compact({
     space_id: opts.space_id,
@@ -100,7 +101,7 @@ async function fetchUserCards(
   else if (role === "member") params.member_ids = String(userId);
   else params.responsible_id = userId;
 
-  return ctx.client.listCards(params);
+  return client.listCards(params);
 }
 
 export function registerPlanningTools(ctx: ToolContext): void {
@@ -124,11 +125,11 @@ export function registerPlanningTools(ctx: ToolContext): void {
         include_overdue: z.boolean().optional().describe("Включать просроченные (по умолч. true)"),
       },
     },
-    (args) =>
-      run(ctx, async () => {
+    (args, extra) =>
+      run(ctx, extra, async (client) => {
         const todayKey = args.as_of_date ?? localDateKey(new Date());
         const includeOverdue = args.include_overdue ?? true;
-        const cards = await fetchUserCards(ctx, args);
+        const cards = await fetchUserCards(client, args);
         const plan = cards
           .filter((c) => !isDoneCard(c))
           .map((c) => toPlanCard(c, todayKey))
@@ -164,10 +165,10 @@ export function registerPlanningTools(ctx: ToolContext): void {
           .describe("Опорная дата в формате YYYY-MM-DD (по умолч. текущая)"),
       },
     },
-    (args) =>
-      run(ctx, async () => {
+    (args, extra) =>
+      run(ctx, extra, async (client) => {
         const todayKey = args.as_of_date ?? localDateKey(new Date());
-        const cards = await fetchUserCards(ctx, args);
+        const cards = await fetchUserCards(client, args);
         const overdue = cards
           .filter((c) => !isDoneCard(c))
           .map((c) => toPlanCard(c, todayKey))
@@ -194,10 +195,10 @@ export function registerPlanningTools(ctx: ToolContext): void {
           .describe("Опорная дата в формате YYYY-MM-DD (по умолч. текущая)"),
       },
     },
-    (args) =>
-      run(ctx, async () => {
+    (args, extra) =>
+      run(ctx, extra, async (client) => {
         const todayKey = args.as_of_date ?? localDateKey(new Date());
-        const cards = await fetchUserCards(ctx, args);
+        const cards = await fetchUserCards(client, args);
         const relevant = cards
           .filter((c) => !isDoneCard(c))
           .map((c) => toPlanCard(c, todayKey))

@@ -2,7 +2,7 @@ import { z } from "zod";
 import { compact, run, type ToolContext } from "./helpers.js";
 
 export function registerSearchTools(ctx: ToolContext): void {
-  const { server, client } = ctx;
+  const { server } = ctx;
 
   server.registerTool(
     "kaiten_search_cards",
@@ -39,8 +39,8 @@ export function registerSearchTools(ctx: ToolContext): void {
           .describe("Доп. query-параметры Kaiten API, передаваемые как есть"),
       },
     },
-    (args) =>
-      run(ctx, () => {
+    (args, extra) =>
+      run(ctx, extra, (client) => {
         const { extra_params, member_ids, tag_ids, ...rest } = args;
         const params: Record<string, unknown> = compact(rest);
         if (member_ids?.length) params.member_ids = member_ids.join(",");
