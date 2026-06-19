@@ -1,59 +1,59 @@
 {
-	"name": "@aimuzov/kaiten-mcp-core",
-	"version": "0.1.0",
-	"description": "Core library for kaiten-mcp: Kaiten API client, MCP tools, JWE token sealing and PKCE verification.",
-	"keywords": [
-		"kaiten",
-		"mcp",
-		"model-context-protocol",
-		"kaiten-api",
-		"kanban"
-	],
-	"homepage": "https://github.com/aimuzov/kaiten-mcp#readme",
-	"bugs": {
-		"url": "https://github.com/aimuzov/kaiten-mcp/issues"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/aimuzov/kaiten-mcp.git",
-		"directory": "packages/core"
-	},
-	"license": "MIT",
-	"author": "Aleksey Imuzov",
-	"type": "module",
-	"main": "dist/index.js",
-	"types": "dist/index.d.ts",
-	"exports": {
-		".": {
-			"types": "./dist/index.d.ts",
-			"default": "./dist/index.js"
-		}
-	},
-	"files": [
-		"dist",
-		"README.md",
-		"LICENSE"
-	],
-	"engines": {
-		"node": ">=20"
-	},
-	"publishConfig": {
-		"access": "public"
-	},
-	"scripts": {
-		"build": "tsc -p tsconfig.json",
-		"typecheck": "tsc -p tsconfig.json --noEmit",
-		"test": "vitest run"
-	},
-	"dependencies": {
-		"@modelcontextprotocol/sdk": "1.29.0",
-		"axios": "1.18.0",
-		"jose": "6.2.3",
-		"zod": "4.4.3"
-	},
-	"devDependencies": {
-		"@types/node": "25.9.3",
-		"typescript": "6.0.3",
-		"vitest": "4.1.9"
-	}
+ "name": "@aimuzov/kaiten-mcp-core",
+ "version": "0.1.0",
+ "description": "Core library for kaiten-mcp: Kaiten API client, MCP tools, JWE token sealing and PKCE verification.",
+ "keywords": [
+  "kaiten",
+  "mcp",
+  "model-context-protocol",
+  "kaiten-api",
+  "kanban"
+ ],
+ "homepage": "https://github.com/aimuzov/kaiten-mcp#readme",
+ "bugs": {
+  "url": "https://github.com/aimuzov/kaiten-mcp/issues"
+ },
+ "repository": {
+  "type": "git",
+  "url": "git+https://github.com/aimuzov/kaiten-mcp.git",
+  "directory": "packages/core"
+ },
+ "license": "MIT",
+ "author": "Aleksey Imuzov",
+ "type": "module",
+ "main": "dist/index.js",
+ "types": "dist/index.d.ts",
+ "exports": {
+  ".": {
+   "types": "./dist/index.d.ts",
+   "default": "./dist/index.js"
+  }
+ },
+ "files": [
+  "dist",
+  "README.md",
+  "LICENSE"
+ ],
+ "engines": {
+  "node": ">=20"
+ },
+ "publishConfig": {
+  "access": "public"
+ },
+ "scripts": {
+  "build": "tsc -p tsconfig.json",
+  "typecheck": "tsc -p tsconfig.json --noEmit",
+  "test": "vitest run"
+ },
+ "dependencies": {
+  "@modelcontextprotocol/sdk": "1.29.0",
+  "axios": "1.18.0",
+  "jose": "6.2.3",
+  "zod": "4.4.3"
+ },
+ "devDependencies": {
+  "@types/node": "25.9.3",
+  "typescript": "6.0.3",
+  "vitest": "4.1.9"
+ }
 }
