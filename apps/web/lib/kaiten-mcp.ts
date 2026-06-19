@@ -9,7 +9,7 @@ import {
 	openToken,
 	loadConfig,
 	normalizeApiUrl,
-} from '@kaiten-mcp/core'
+} from '@aimuzov/kaiten-mcp-core'
 import { getAuthSecret } from './baseUrl'
 
 const baseConfig = loadConfig()

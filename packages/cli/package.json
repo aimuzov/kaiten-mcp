@@ -1,5 +1,5 @@
 {
-	"name": "kaiten-mcp",
+	"name": "@aimuzov/kaiten-mcp",
 	"version": "0.1.0",
 	"description": "MCP server for Kaiten — manage spaces, boards, cards, comments, checklists, time tracking and day planning from any MCP client (stdio).",
 	"keywords": [
@@ -54,7 +54,7 @@
 		"test:elicit": "node --import tsx scripts/elicit-test.ts"
 	},
 	"dependencies": {
-		"@kaiten-mcp/core": "^0.1.0",
+		"@aimuzov/kaiten-mcp-core": "^0.1.0",
 		"@modelcontextprotocol/sdk": "1.29.0",
 		"zod": "4.4.3"
 	},

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { sealToken, openToken, verifyPkceS256 } from '@kaiten-mcp/core'
+import { sealToken, openToken, verifyPkceS256 } from '@aimuzov/kaiten-mcp-core'
 import { getAuthSecret } from '../../lib/baseUrl'
 
 const ACCESS_TTL = '12h'

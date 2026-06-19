@@ -10,7 +10,7 @@
 		"test:flow": "node --import tsx scripts/flow-test.ts"
 	},
 	"dependencies": {
-		"@kaiten-mcp/core": "*",
+		"@aimuzov/kaiten-mcp-core": "*",
 		"@modelcontextprotocol/sdk": "1.29.0",
 		"mcp-handler": "1.1.0",
 		"next": "16.2.9",

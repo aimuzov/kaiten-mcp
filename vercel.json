@@ -1,5 +1,5 @@
 {
-	"buildCommand": "npm run build -w @kaiten-mcp/core && npm run build -w @kaiten-mcp/web",
+	"buildCommand": "npm run build -w @aimuzov/kaiten-mcp-core && npm run build -w @kaiten-mcp/web",
 	"outputDirectory": ".next",
 	"framework": "nextjs"
 }

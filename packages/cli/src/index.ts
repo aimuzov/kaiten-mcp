@@ -9,7 +9,7 @@ import {
 	Logger,
 	makeToolContext,
 	registerAllTools,
-} from '@kaiten-mcp/core'
+} from '@aimuzov/kaiten-mcp-core'
 
 const require = createRequire(import.meta.url)
 const { version: SERVER_VERSION } = require('../package.json') as { version: string }

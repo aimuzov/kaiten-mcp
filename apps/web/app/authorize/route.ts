@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { sealToken } from '@kaiten-mcp/core'
+import { sealToken } from '@aimuzov/kaiten-mcp-core'
 import { getAuthSecret, getConfiguredKaitenUrl, isAllowedRedirectUri } from '../../lib/baseUrl'
 
 function escapeHtml(s: string): string {

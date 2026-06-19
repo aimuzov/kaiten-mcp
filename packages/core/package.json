@@ -1,5 +1,5 @@
 {
-	"name": "@kaiten-mcp/core",
+	"name": "@aimuzov/kaiten-mcp-core",
 	"version": "0.1.0",
 	"description": "Core library for kaiten-mcp: Kaiten API client, MCP tools, JWE token sealing and PKCE verification.",
 	"keywords": [

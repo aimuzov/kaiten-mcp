@@ -10,9 +10,9 @@
 		"node": ">=20"
 	},
 	"scripts": {
-		"build": "npm run build -w @kaiten-mcp/core && npm run build -w kaiten-mcp",
+		"build": "npm run build -w @aimuzov/kaiten-mcp-core && npm run build -w @aimuzov/kaiten-mcp",
 		"typecheck": "npm run typecheck --workspaces --if-present",
-		"test": "npm run build && npm run smoke -w kaiten-mcp && npm run test:elicit -w kaiten-mcp",
+		"test": "npm run build && npm run smoke -w @aimuzov/kaiten-mcp && npm run test:elicit -w @aimuzov/kaiten-mcp",
 		"lint": "oxlint",
 		"lint:fix": "oxlint --fix",
 		"format": "oxfmt",
