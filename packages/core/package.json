@@ -1,6 +1,25 @@
 {
 	"name": "@kaiten-mcp/core",
 	"version": "0.1.0",
+	"description": "Core library for kaiten-mcp: Kaiten API client, MCP tools, JWE token sealing and PKCE verification.",
+	"keywords": [
+		"kaiten",
+		"mcp",
+		"model-context-protocol",
+		"kaiten-api",
+		"kanban"
+	],
+	"homepage": "https://github.com/aimuzov/kaiten-mcp#readme",
+	"bugs": {
+		"url": "https://github.com/aimuzov/kaiten-mcp/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/aimuzov/kaiten-mcp.git",
+		"directory": "packages/core"
+	},
+	"license": "MIT",
+	"author": "Aleksey Imuzov",
 	"type": "module",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -9,6 +28,17 @@
 			"types": "./dist/index.d.ts",
 			"default": "./dist/index.js"
 		}
+	},
+	"files": [
+		"dist",
+		"README.md",
+		"LICENSE"
+	],
+	"engines": {
+		"node": ">=20"
+	},
+	"publishConfig": {
+		"access": "public"
 	},
 	"scripts": {
 		"build": "tsc -p tsconfig.json",

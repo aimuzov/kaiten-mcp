@@ -1,7 +1,34 @@
 {
 	"name": "kaiten-mcp",
 	"version": "0.1.0",
-	"description": "Kaiten MCP server (stdio) for local use in Cowork/Claude.",
+	"description": "MCP server for Kaiten — manage spaces, boards, cards, comments, checklists, time tracking and day planning from any MCP client (stdio).",
+	"keywords": [
+		"kaiten",
+		"mcp",
+		"model-context-protocol",
+		"mcp-server",
+		"claude",
+		"claude-desktop",
+		"claude-code",
+		"cowork",
+		"ai",
+		"llm",
+		"stdio",
+		"kanban",
+		"project-management",
+		"task-management"
+	],
+	"homepage": "https://github.com/aimuzov/kaiten-mcp#readme",
+	"bugs": {
+		"url": "https://github.com/aimuzov/kaiten-mcp/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/aimuzov/kaiten-mcp.git",
+		"directory": "packages/cli"
+	},
+	"license": "MIT",
+	"author": "Aleksey Imuzov",
 	"type": "module",
 	"bin": {
 		"kaiten-mcp": "dist/index.js"
@@ -9,10 +36,15 @@
 	"files": [
 		"dist",
 		"README.md",
-		".env.example"
+		"README.ru.md",
+		".env.example",
+		"LICENSE"
 	],
 	"engines": {
 		"node": ">=20"
+	},
+	"publishConfig": {
+		"access": "public"
 	},
 	"scripts": {
 		"build": "tsc -p tsconfig.json",
@@ -22,7 +54,7 @@
 		"test:elicit": "node --import tsx scripts/elicit-test.ts"
 	},
 	"dependencies": {
-		"@kaiten-mcp/core": "*",
+		"@kaiten-mcp/core": "^0.1.0",
 		"@modelcontextprotocol/sdk": "1.29.0",
 		"zod": "4.4.3"
 	},
