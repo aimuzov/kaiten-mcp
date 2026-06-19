@@ -1,0 +1,19 @@
+root = true
+
+[*]
+indent_style = tab
+end_of_line = lf
+charset = utf-8
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# YAML не допускает табы в отступах
+[*.{yml,yaml}]
+indent_style = space
+indent_size = 2
+
+# Markdown использует пробелы для вложенности и хвостовые пробелы для переносов
+[*.md]
+indent_style = space
+indent_size = 2
+trim_trailing_whitespace = false
