@@ -1,27 +1,27 @@
 {
-  "name": "@kaiten-mcp/web",
-  "private": true,
-  "version": "0.1.0",
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "typecheck": "tsc --noEmit",
-    "test:flow": "node --import tsx scripts/flow-test.ts"
-  },
-  "dependencies": {
-    "@kaiten-mcp/core": "*",
-    "@modelcontextprotocol/sdk": "1.29.0",
-    "mcp-handler": "1.1.0",
-    "next": "16.2.9",
-    "react": "19.2.7",
-    "react-dom": "19.2.7",
-    "zod": "4.4.3"
-  },
-  "devDependencies": {
-    "@types/node": "25.9.3",
-    "@types/react": "19.2.17",
-    "tsx": "4.22.4",
-    "typescript": "6.0.3"
-  }
+	"name": "@kaiten-mcp/web",
+	"private": true,
+	"version": "0.1.0",
+	"scripts": {
+		"dev": "next dev",
+		"build": "next build",
+		"start": "next start",
+		"typecheck": "tsc --noEmit",
+		"test:flow": "node --import tsx scripts/flow-test.ts"
+	},
+	"dependencies": {
+		"@kaiten-mcp/core": "*",
+		"@modelcontextprotocol/sdk": "1.29.0",
+		"mcp-handler": "1.1.0",
+		"next": "16.2.9",
+		"react": "19.2.7",
+		"react-dom": "19.2.7",
+		"zod": "4.4.3"
+	},
+	"devDependencies": {
+		"@types/node": "25.9.3",
+		"@types/react": "19.2.17",
+		"tsx": "4.22.4",
+		"typescript": "6.0.3"
+	}
 }

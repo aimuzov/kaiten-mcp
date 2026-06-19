@@ -23,15 +23,15 @@ kaiten-mcp
 Скопируйте `.env.example` в `.env` и заполните, или передайте переменные через конфиг
 MCP-клиента:
 
-| Переменная | Обязательна | Назначение |
-| --- | --- | --- |
-| `KAITEN_API_URL` | нет* | Базовый URL Kaiten, напр. `https://your-domain.kaiten.ru/api/latest` |
-| `KAITEN_API_TOKEN` | нет* | Персональный API-токен |
-| `KAITEN_DEFAULT_SPACE_ID` | нет | Пространство по умолчанию |
-| `KAITEN_REQUEST_TIMEOUT_MS` | нет | Таймаут запросов, мс (по умолч. 30000) |
-| `KAITEN_MAX_CONCURRENT_REQUESTS` | нет | Лимит одновременных запросов 1–20 (по умолч. 5) |
-| `KAITEN_LOG_LEVEL` | нет | `error` / `warn` / `info` / `debug` (по умолч. `info`) |
-| `KAITEN_LOG_FILE` | нет | Путь к файлу лога |
+| Переменная                       | Обязательна | Назначение                                                           |
+| -------------------------------- | ----------- | -------------------------------------------------------------------- |
+| `KAITEN_API_URL`                 | нет\*       | Базовый URL Kaiten, напр. `https://your-domain.kaiten.ru/api/latest` |
+| `KAITEN_API_TOKEN`               | нет\*       | Персональный API-токен                                               |
+| `KAITEN_DEFAULT_SPACE_ID`        | нет         | Пространство по умолчанию                                            |
+| `KAITEN_REQUEST_TIMEOUT_MS`      | нет         | Таймаут запросов, мс (по умолч. 30000)                               |
+| `KAITEN_MAX_CONCURRENT_REQUESTS` | нет         | Лимит одновременных запросов 1–20 (по умолч. 5)                      |
+| `KAITEN_LOG_LEVEL`               | нет         | `error` / `warn` / `info` / `debug` (по умолч. `info`)               |
+| `KAITEN_LOG_FILE`                | нет         | Путь к файлу лога                                                    |
 
 `*` Если не заданы — сервер запросит их через MCP elicitation при первом обращении.
 

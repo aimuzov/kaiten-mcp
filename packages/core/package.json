@@ -1,29 +1,29 @@
 {
-  "name": "@kaiten-mcp/core",
-  "version": "0.1.0",
-  "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
-    }
-  },
-  "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run"
-  },
-  "dependencies": {
-    "@modelcontextprotocol/sdk": "1.29.0",
-    "axios": "1.18.0",
-    "jose": "6.2.3",
-    "zod": "4.4.3"
-  },
-  "devDependencies": {
-    "@types/node": "25.9.3",
-    "typescript": "6.0.3",
-    "vitest": "4.1.9"
-  }
+	"name": "@kaiten-mcp/core",
+	"version": "0.1.0",
+	"type": "module",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"scripts": {
+		"build": "tsc -p tsconfig.json",
+		"typecheck": "tsc -p tsconfig.json --noEmit",
+		"test": "vitest run"
+	},
+	"dependencies": {
+		"@modelcontextprotocol/sdk": "1.29.0",
+		"axios": "1.18.0",
+		"jose": "6.2.3",
+		"zod": "4.4.3"
+	},
+	"devDependencies": {
+		"@types/node": "25.9.3",
+		"typescript": "6.0.3",
+		"vitest": "4.1.9"
+	}
 }

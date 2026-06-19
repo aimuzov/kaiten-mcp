@@ -1,3 +1,3 @@
-import { mcpHandler } from "../../../lib/kaiten-mcp";
+import { mcpHandler } from '../../../lib/kaiten-mcp'
 
-export { mcpHandler as GET, mcpHandler as POST };
+export { mcpHandler as GET, mcpHandler as POST }
