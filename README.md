@@ -1,226 +1,234 @@
 # kaiten-mcp
 
-MCP-сервер для полного управления [Kaiten](https://kaiten.ru) из любого MCP-клиента.
-Предоставляет 36 инструментов `kaiten_*`: пространства, доски, карточки, комментарии,
-чек-листы, учёт времени, теги, участники, гибкие выборки, планирование дня.
+**English** · [Русский](README.ru.md)
 
-## Два способа использования
+[![npm version](https://img.shields.io/npm/v/kaiten-mcp)](https://www.npmjs.com/package/kaiten-mcp)
+[![license](https://img.shields.io/npm/l/kaiten-mcp)](LICENSE)
+[![node](https://img.shields.io/node/v/kaiten-mcp)](https://nodejs.org)
 
-### (а) Локальный stdio-сервер через npm
+MCP server for full control over [Kaiten](https://kaiten.ru) from any MCP client.
+Provides 36 `kaiten_*` tools: spaces, boards, cards, comments, checklists, time
+tracking, tags, members, flexible queries and day planning.
 
-Устанавливается как npm-пакет и запускается MCP-клиентом локально. Токен хранится в
-переменных окружения или запрашивается интерактивно (elicitation).
+## Two ways to use it
 
-Подходит для: Cowork, Claude Code, Claude Desktop (локальный).
+### (a) Local stdio server via npm
 
-### (б) Удалённый сервер на Vercel
+Installed as an npm package and launched locally by an MCP client. The token is kept
+in environment variables or requested interactively (elicitation).
 
-Next.js-приложение из `apps/web` разворачивается на Vercel и становится удалённым
-MCP-сервером с OAuth 2.1 + PKCE. Каждый сотрудник подключается по URL в Claude Desktop
-и вводит свой Kaiten API-токен — без раздачи токенов через конфиги.
+Good for: Cowork, Claude Code, Claude Desktop (local).
 
-Подходит для: командного использования, Claude Desktop (удалённый connector).
+### (b) Remote server on Vercel
+
+The Next.js app in `apps/web` is deployed to Vercel and becomes a remote MCP server with
+OAuth 2.1 + PKCE. Each teammate connects by URL in Claude Desktop and enters their own
+Kaiten API token — no handing tokens around through configs.
+
+Good for: team usage, Claude Desktop (remote connector).
 
 ---
 
-## Локальный stdio-сервер
+## Local stdio server
 
-### Возможности
+### Features
 
-36 инструментов `kaiten_*`:
+36 `kaiten_*` tools:
 
-| Группа | Инструменты |
-| --- | --- |
-| Пользователи | `get_current_user`, `list_users` |
-| Пространства/доски | `list_spaces`, `get_space`, `list_boards`, `get_board` |
-| Справочники | `list_columns`, `list_lanes`, `list_card_types`, `list_tags` |
-| Карточки | `get_card`, `create_card`, `update_card`, `move_card`, `delete_card`, `archive_card` |
-| Участники/теги карточки | `add_card_member`, `remove_card_member`, `add_card_tag`, `remove_card_tag` |
-| Выборки | `search_cards` (фильтры: доска, колонка, ответственный, теги, сроки, текст, + произвольные параметры) |
-| Комментарии | `list_comments`, `create_comment`, `update_comment`, `delete_comment` |
-| Чек-листы | `list_checklists`, `add_checklist`, `add_checklist_item`, `update_checklist_item`, `delete_checklist_item` |
-| Учёт времени | `list_time_logs`, `add_time_log`, `delete_time_log` |
-| Планирование | `today_tasks`, `overdue_cards`, `plan_day` |
+| Group               | Tools                                                                                                      |
+| ------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Users               | `get_current_user`, `list_users`                                                                           |
+| Spaces / boards     | `list_spaces`, `get_space`, `list_boards`, `get_board`                                                     |
+| Reference data      | `list_columns`, `list_lanes`, `list_card_types`, `list_tags`                                               |
+| Cards               | `get_card`, `create_card`, `update_card`, `move_card`, `delete_card`, `archive_card`                       |
+| Card members / tags | `add_card_member`, `remove_card_member`, `add_card_tag`, `remove_card_tag`                                 |
+| Queries             | `search_cards` (filters: board, column, owner, tags, due dates, text, + arbitrary params)                  |
+| Comments            | `list_comments`, `create_comment`, `update_comment`, `delete_comment`                                      |
+| Checklists          | `list_checklists`, `add_checklist`, `add_checklist_item`, `update_checklist_item`, `delete_checklist_item` |
+| Time tracking       | `list_time_logs`, `add_time_log`, `delete_time_log`                                                        |
+| Planning            | `today_tasks`, `overdue_cards`, `plan_day`                                                                 |
 
-#### Планировочные инструменты
+#### Planning tools
 
-- **`kaiten_today_tasks`** — активные карточки пользователя со сроком на сегодня или раньше, отсортированные по приоритету и сроку.
-- **`kaiten_overdue_cards`** — только просроченные карточки.
-- **`kaiten_plan_day`** — готовый план дня: группировка «Просрочено / На сегодня» + markdown-текст и структурированный список.
+- **`kaiten_today_tasks`** — the user's active cards due today or earlier, sorted by priority and due date.
+- **`kaiten_overdue_cards`** — overdue cards only.
+- **`kaiten_plan_day`** — a ready-made day plan: grouped into "Overdue / Today" plus markdown text and a structured list.
 
-Если `user_id` не указан — берётся текущий пользователь токена.
+If `user_id` is omitted, the token's current user is used.
 
-### Требования
+### Requirements
 
-- Node.js >= 20 (рекомендуется 22 LTS, версия закреплена в `mise.toml`).
-- Персональный API-токен Kaiten.
+- Node.js >= 20 (22 LTS recommended, pinned in `mise.toml`).
+- A personal Kaiten API token.
 
-### Установка
+### Installation
 
 ```bash
-# Из npm (после публикации):
+# From npm:
 npm install -g kaiten-mcp
 
-# Из исходников:
-git clone <repo> kaiten-mcp
+# Or run on demand without installing:
+npx kaiten-mcp
+
+# From source:
+git clone https://github.com/aimuzov/kaiten-mcp.git
 cd kaiten-mcp
 npm install
 npm run build
 ```
 
-### Конфигурация
+### Configuration
 
-Скопируйте `packages/cli/.env.example` в `packages/cli/.env` и заполните (или передайте
-переменные через конфиг MCP-клиента):
+Copy `packages/cli/.env.example` to `packages/cli/.env` and fill it in (or pass the
+variables through your MCP client config):
 
-| Переменная | Обязательна | Назначение |
-| --- | --- | --- |
-| `KAITEN_API_URL` | да* | База API, напр. `https://your-domain.kaiten.ru/api/latest` (`/api/latest` добавится автоматически) |
-| `KAITEN_API_TOKEN` | да* | Персональный API-токен |
-| `KAITEN_DEFAULT_SPACE_ID` | нет | Пространство по умолчанию для `list_boards` без `space_id` |
-| `KAITEN_REQUEST_TIMEOUT_MS` | нет | Таймаут запросов, мс (по умолч. 30000) |
-| `KAITEN_MAX_CONCURRENT_REQUESTS` | нет | Лимит одновременных запросов 1–20 (по умолч. 5) |
-| `KAITEN_LOG_LEVEL` | нет | `error` / `warn` / `info` / `debug` (по умолч. `info`) |
-| `KAITEN_LOG_FILE` | нет | Путь к файлу лога (иначе только stderr) |
+| Variable                         | Required | Purpose                                                                                 |
+| -------------------------------- | -------- | --------------------------------------------------------------------------------------- |
+| `KAITEN_API_URL`                 | yes\*    | API base, e.g. `https://your-domain.kaiten.ru/api/latest` (`/api/latest` is auto-added) |
+| `KAITEN_API_TOKEN`               | yes\*    | Personal API token                                                                      |
+| `KAITEN_DEFAULT_SPACE_ID`        | no       | Default space for `list_boards` without a `space_id`                                    |
+| `KAITEN_REQUEST_TIMEOUT_MS`      | no       | Request timeout, ms (default 30000)                                                     |
+| `KAITEN_MAX_CONCURRENT_REQUESTS` | no       | Max concurrent requests 1–20 (default 5)                                                |
+| `KAITEN_LOG_LEVEL`               | no       | `error` / `warn` / `info` / `debug` (default `info`)                                    |
+| `KAITEN_LOG_FILE`                | no       | Log file path (otherwise stderr only)                                                   |
 
-> Где взять токен: в Kaiten откройте профиль → раздел с API-ключами и создайте токен.
+> Where to get a token: in Kaiten, open your profile → the API keys section and create a token.
 
-### Интерактивный запрос токена (elicitation)
+### Interactive token request (elicitation)
 
-`*` — `KAITEN_API_URL` и `KAITEN_API_TOKEN` **не обязательны на старте**. Если они не
-заданы, сервер запросит их у вас **в самом клиенте** при первом обращении к Kaiten —
-через стандартный механизм MCP **elicitation**. Введённые значения хранятся только в
-памяти процесса на время сессии и нигде не записываются на диск.
+`*` — `KAITEN_API_URL` and `KAITEN_API_TOKEN` are **not required at startup**. If they are
+not set, the server will ask you for them **right inside the client** on the first call to
+Kaiten — via the standard MCP **elicitation** mechanism. The entered values are kept only
+in process memory for the duration of the session and are never written to disk.
 
-- Работает, только если клиент поддерживает elicitation (объявляет capability `elicitation`).
-- Если клиент не поддерживает elicitation и переменные не заданы — при вызове любого инструмента вернётся понятная ошибка с просьбой задать переменные.
-- Хотите всегда вводить токен вручную — просто не указывайте `KAITEN_API_TOKEN`.
+- Works only if the client supports elicitation (declares the `elicitation` capability).
+- If the client does not support elicitation and the variables are unset, any tool call returns a clear error asking you to set the variables.
+- Want to always enter the token manually? Just leave `KAITEN_API_TOKEN` unset.
 
-### Подключение в Cowork
+### Connecting in Cowork
 
 ```json
 {
   "mcpServers": {
     "kaiten": {
-      "command": "node",
-      "args": ["/absolute/path/to/kaiten-mcp/packages/cli/dist/index.js"],
+      "command": "kaiten-mcp",
       "env": {
         "KAITEN_API_URL": "https://your-domain.kaiten.ru/api/latest",
-        "KAITEN_API_TOKEN": "ваш-токен"
+        "KAITEN_API_TOKEN": "your-token"
       }
     }
   }
 }
 ```
 
-Блок `env` можно и не указывать — тогда при первом обращении к Kaiten сервер сам спросит
-токен прямо в Cowork (см. [Интерактивный запрос токена](#интерактивный-запрос-токена-elicitation)).
+The `env` block is optional — without it the server will ask for the token right inside
+Cowork on the first Kaiten call (see [Interactive token request](#interactive-token-request-elicitation)).
 
-### Подключение в Claude Code
+### Connecting in Claude Code
 
 ```bash
 claude mcp add kaiten \
   --env KAITEN_API_URL=https://your-domain.kaiten.ru/api/latest \
-  --env KAITEN_API_TOKEN=ваш-токен \
-  -- node /absolute/path/to/kaiten-mcp/packages/cli/dist/index.js
+  --env KAITEN_API_TOKEN=your-token \
+  -- kaiten-mcp
 ```
 
-### Подключение в Claude Desktop (локально)
+### Connecting in Claude Desktop (local)
 
-В `claude_desktop_config.json` добавьте тот же блок `mcpServers`, что и для Cowork выше.
+In `claude_desktop_config.json` add the same `mcpServers` block as for Cowork above.
 
-### Тесты (stdio)
+### Tests (stdio)
 
 ```bash
 npm run build
-npm run smoke -w kaiten-mcp      # initialize + tools/list (без кредов)
-npm run test:elicit -w kaiten-mcp # проверка интерактивного запроса токена
-npm run test -w @kaiten-mcp/core  # unit-тесты ядра (vitest)
+npm run smoke -w kaiten-mcp        # initialize + tools/list (no credentials)
+npm run test:elicit -w kaiten-mcp  # interactive token request check
+npm run test -w @kaiten-mcp/core   # core unit tests (vitest)
 ```
 
 ---
 
-## Удалённый сервер на Vercel
+## Remote server on Vercel
 
-Приложение `apps/web` — это Next.js-сервер с полным OAuth 2.1 + PKCE флоу, который
-разворачивается на Vercel. Сотрудники подключают его в Claude Desktop по URL, а не через
-конфиги с токенами.
+The `apps/web` app is a Next.js server with a full OAuth 2.1 + PKCE flow that deploys to
+Vercel. Teammates connect it in Claude Desktop by URL rather than through configs with
+tokens.
 
-**Важно:** Claude Desktop поддерживает только OAuth-аутентификацию для удалённых
-connector-ов — передать токен через заголовок или URL-параметр нельзя. Именно поэтому
-здесь реализован полный OAuth-флоу.
+**Important:** Claude Desktop supports only OAuth authentication for remote connectors —
+you cannot pass a token via a header or URL parameter. That is why a full OAuth flow is
+implemented here.
 
-### Как это работает
+### How it works
 
-1. Администратор деплоит `apps/web` на Vercel.
-2. Сотрудник в Claude Desktop: Settings → Connectors → Add custom connector → вводит URL деплоя.
-3. Claude Desktop запускает OAuth: открывает браузер, отображается форма — сотрудник вводит свой персональный Kaiten API-токен.
-4. Токен шифруется через JWE (`AUTH_SECRET`) и возвращается Claude Desktop как Bearer-токен.
-5. На каждый MCP-запрос сервер расшифровывает токен и обращается к Kaiten от имени конкретного сотрудника.
-6. База данных не нужна — архитектура полностью stateless.
+1. An administrator deploys `apps/web` to Vercel.
+2. A teammate in Claude Desktop: Settings → Connectors → Add custom connector → enters the deployment URL.
+3. Claude Desktop starts OAuth: the browser opens, a form is shown — the teammate enters their personal Kaiten API token.
+4. The token is encrypted via JWE (`AUTH_SECRET`) and returned to Claude Desktop as a Bearer token.
+5. On every MCP request the server decrypts the token and talks to Kaiten on behalf of that specific teammate.
+6. No database is needed — the architecture is fully stateless.
 
-### Переменные окружения
+### Environment variables
 
-| Переменная | Обязательна | Назначение |
-| --- | --- | --- |
-| `AUTH_SECRET` | **да** | Ключ шифрования OAuth-токенов. Минимум 16 символов, рекомендуется 32+. Токен сотрудника хранится в зашифрованном виде — без этого ключа авторизация невозможна. |
-| `KAITEN_API_URL` | нет | Единый Kaiten URL для всей организации. Если задан, форма не спрашивает URL у сотрудника. |
+| Variable         | Required | Purpose                                                                                                                                                  |
+| ---------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `AUTH_SECRET`    | **yes**  | OAuth token encryption key. At least 16 chars, 32+ recommended. The teammate's token is stored encrypted — without this key authorization is impossible. |
+| `KAITEN_API_URL` | no       | A single Kaiten URL for the whole organization. If set, the form does not ask the teammate for a URL.                                                    |
 
-Скопируйте `apps/web/.env.example` в `apps/web/.env.local` и заполните для локальной разработки.
+Copy `apps/web/.env.example` to `apps/web/.env.local` and fill it in for local development.
 
-### Деплой на Vercel
+### Deploy to Vercel
 
-**Рекомендуемый способ — Root Directory в дашборде:**
+**Recommended — Root Directory in the dashboard:**
 
-1. Импортируйте репозиторий в Vercel.
-2. В настройках проекта установите **Root Directory = `apps/web`**.
-3. Vercel автоматически определит Next.js и всё настроит.
-4. В разделе Environment Variables добавьте `AUTH_SECRET` (обязательно) и опционально `KAITEN_API_URL`.
+1. Import the repository into Vercel.
+2. In project settings set **Root Directory = `apps/web`**.
+3. Vercel auto-detects Next.js and configures everything.
+4. In Environment Variables add `AUTH_SECRET` (required) and optionally `KAITEN_API_URL`.
 
-**Альтернативный способ — `vercel.json` в корне:**
+**Alternative — `vercel.json` in the root:**
 
-В корне репозитория уже есть `vercel.json`, который указывает Vercel собирать `apps/web`
-из корня монорепо. Просто импортируйте репозиторий без изменения Root Directory.
+The repository root already contains a `vercel.json` that tells Vercel to build `apps/web`
+from the monorepo root. Just import the repository without changing the Root Directory.
 
-### Подключение сотрудника в Claude Desktop
+### Connecting a teammate in Claude Desktop
 
-Settings → Connectors → Add custom connector → введите URL деплоя (например,
-`https://kaiten-mcp.vercel.app`). Claude Desktop запустит OAuth-флоу: откроется форма,
-где сотрудник вводит свой Kaiten API-токен. После этого все инструменты `kaiten_*`
-становятся доступны.
+Settings → Connectors → Add custom connector → enter the deployment URL (e.g.
+`https://kaiten-mcp.vercel.app`). Claude Desktop starts the OAuth flow: a form opens where
+the teammate enters their Kaiten API token. After that all `kaiten_*` tools become
+available.
 
 ---
 
-## Архитектура монорепо
+## Monorepo architecture
 
 ```
 kaiten-mcp/
 ├── package.json                      # npm workspaces
 ├── packages/
-│   ├── core/  (@kaiten-mcp/core)     # Общее ядро: клиент Kaiten, 36 инструментов,
-│   │                                 # JWE-токены, проверка PKCE, типы
-│   └── cli/   (kaiten-mcp)           # stdio MCP-сервер (npm-пакет, bin)
+│   ├── core/  (@kaiten-mcp/core)     # Shared core: Kaiten client, 36 tools,
+│   │                                 # JWE tokens, PKCE verification, types
+│   └── cli/   (kaiten-mcp)           # stdio MCP server (npm package, bin)
 └── apps/
-    └── web/   (@kaiten-mcp/web)      # Next.js удалённый сервер на Vercel,
-                                      # OAuth 2.1 + PKCE + MCP-эндпоинт
+    └── web/   (@kaiten-mcp/web)      # Next.js remote server on Vercel,
+                                      # OAuth 2.1 + PKCE + MCP endpoint
 ```
 
-### Пакеты
+### Packages
 
-- **`@kaiten-mcp/core`** — общая логика: клиент Kaiten API, все 36 инструментов,
-  JWE seal/open (для OAuth-токенов), проверка PKCE S256, типы сущностей. Тесты: vitest.
-- **`kaiten-mcp`** (`packages/cli`) — публикуемый npm-пакет, stdin/stdout MCP-сервер.
-  Использует `@kaiten-mcp/core`. Тесты: smoke + elicitation.
-- **`@kaiten-mcp/web`** (`apps/web`) — Next.js-приложение: OAuth 2.1 (PKCE + DCR),
-  MCP-эндпоинт через `mcp-handler`. Тест: `npm run test:flow`.
+- **`@kaiten-mcp/core`** — shared logic: Kaiten API client, all 36 tools, JWE seal/open
+  (for OAuth tokens), PKCE S256 verification, entity types. Tests: vitest.
+- **`kaiten-mcp`** (`packages/cli`) — the published npm package, a stdin/stdout MCP server.
+  Uses `@kaiten-mcp/core`. Tests: smoke + elicitation.
+- **`@kaiten-mcp/web`** (`apps/web`) — Next.js app: OAuth 2.1 (PKCE + DCR), MCP endpoint
+  via `mcp-handler`. Test: `npm run test:flow`.
 
-## Заметки по Kaiten API
+## Kaiten API notes
 
-- Базовый путь — `/api/latest`, аутентификация — `Authorization: Bearer <token>`.
-- Тип колонки: `1` — очередь, `2` — в работе, `3` — готово.
-- Состояние карточки `condition`: `1` — активная, `2` — архив.
-- В `search_cards` редкие параметры Kaiten можно передавать через `extra_params`.
+- Base path is `/api/latest`, authentication is `Authorization: Bearer <token>`.
+- Column type: `1` — queue, `2` — in progress, `3` — done.
+- Card `condition`: `1` — active, `2` — archived.
+- In `search_cards`, rare Kaiten parameters can be passed via `extra_params`.
 
-## Лицензия
+## License
 
 MIT

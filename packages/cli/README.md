@@ -1,41 +1,46 @@
 # kaiten-mcp
 
-MCP-сервер для управления [Kaiten](https://kaiten.ru) через stdio — для локального
-использования в Cowork, Claude Code, Claude Desktop и других MCP-клиентах.
+**English** · [Русский](README.ru.md)
 
-Предоставляет 36 инструментов `kaiten_*`: карточки, пространства, доски, комментарии,
-чек-листы, учёт времени, планирование дня.
+[![npm version](https://img.shields.io/npm/v/kaiten-mcp)](https://www.npmjs.com/package/kaiten-mcp)
+[![license](https://img.shields.io/npm/l/kaiten-mcp)](LICENSE)
 
-Полная документация — в [корневом README](https://github.com/aimuzov/kaiten-mcp#readme).
+MCP server for [Kaiten](https://kaiten.ru) over stdio — for local use in Cowork, Claude
+Code, Claude Desktop and other MCP clients.
 
-## Быстрый старт
+Provides 36 `kaiten_*` tools: cards, spaces, boards, comments, checklists, time tracking,
+day planning.
+
+Full documentation — in the [root README](https://github.com/aimuzov/kaiten-mcp#readme).
+
+## Quick start
 
 ```bash
-# Установка
+# Install
 npm install -g kaiten-mcp
 
-# Запуск (MCP-клиент вызывает это сам)
+# Run (the MCP client launches this itself)
 kaiten-mcp
 ```
 
-## Конфигурация
+## Configuration
 
-Скопируйте `.env.example` в `.env` и заполните, или передайте переменные через конфиг
-MCP-клиента:
+Copy `.env.example` to `.env` and fill it in, or pass the variables through your MCP
+client config:
 
-| Переменная                       | Обязательна | Назначение                                                           |
-| -------------------------------- | ----------- | -------------------------------------------------------------------- |
-| `KAITEN_API_URL`                 | нет\*       | Базовый URL Kaiten, напр. `https://your-domain.kaiten.ru/api/latest` |
-| `KAITEN_API_TOKEN`               | нет\*       | Персональный API-токен                                               |
-| `KAITEN_DEFAULT_SPACE_ID`        | нет         | Пространство по умолчанию                                            |
-| `KAITEN_REQUEST_TIMEOUT_MS`      | нет         | Таймаут запросов, мс (по умолч. 30000)                               |
-| `KAITEN_MAX_CONCURRENT_REQUESTS` | нет         | Лимит одновременных запросов 1–20 (по умолч. 5)                      |
-| `KAITEN_LOG_LEVEL`               | нет         | `error` / `warn` / `info` / `debug` (по умолч. `info`)               |
-| `KAITEN_LOG_FILE`                | нет         | Путь к файлу лога                                                    |
+| Variable                         | Required | Purpose                                                          |
+| -------------------------------- | -------- | ---------------------------------------------------------------- |
+| `KAITEN_API_URL`                 | no\*     | Kaiten API base, e.g. `https://your-domain.kaiten.ru/api/latest` |
+| `KAITEN_API_TOKEN`               | no\*     | Personal API token                                               |
+| `KAITEN_DEFAULT_SPACE_ID`        | no       | Default space                                                    |
+| `KAITEN_REQUEST_TIMEOUT_MS`      | no       | Request timeout, ms (default 30000)                              |
+| `KAITEN_MAX_CONCURRENT_REQUESTS` | no       | Max concurrent requests 1–20 (default 5)                         |
+| `KAITEN_LOG_LEVEL`               | no       | `error` / `warn` / `info` / `debug` (default `info`)             |
+| `KAITEN_LOG_FILE`                | no       | Log file path                                                    |
 
-`*` Если не заданы — сервер запросит их через MCP elicitation при первом обращении.
+`*` If unset, the server requests them via MCP elicitation on the first call.
 
-## Подключение в Claude Desktop / Cowork
+## Connecting in Claude Desktop / Cowork
 
 ```json
 {
@@ -44,22 +49,22 @@ MCP-клиента:
       "command": "kaiten-mcp",
       "env": {
         "KAITEN_API_URL": "https://your-domain.kaiten.ru/api/latest",
-        "KAITEN_API_TOKEN": "ваш-токен"
+        "KAITEN_API_TOKEN": "your-token"
       }
     }
   }
 }
 ```
 
-## Подключение в Claude Code
+## Connecting in Claude Code
 
 ```bash
 claude mcp add kaiten \
   --env KAITEN_API_URL=https://your-domain.kaiten.ru/api/latest \
-  --env KAITEN_API_TOKEN=ваш-токен \
+  --env KAITEN_API_TOKEN=your-token \
   -- kaiten-mcp
 ```
 
-## Лицензия
+## License
 
 MIT
