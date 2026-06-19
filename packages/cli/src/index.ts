@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { createRequire } from 'node:module'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import {
@@ -10,8 +11,10 @@ import {
 	registerAllTools,
 } from '@kaiten-mcp/core'
 
+const require = createRequire(import.meta.url)
+const { version: SERVER_VERSION } = require('../package.json') as { version: string }
+
 const SERVER_NAME = 'kaiten-mcp'
-const SERVER_VERSION = '0.1.0'
 
 async function main(): Promise<void> {
 	// Подхватываем .env, если он есть рядом (поддержка появилась в Node 20.12+/22).
