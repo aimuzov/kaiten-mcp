@@ -16,11 +16,28 @@
 		"lint": "oxlint",
 		"lint:fix": "oxlint --fix",
 		"format": "oxfmt",
-		"format:check": "oxfmt --check"
+		"format:check": "oxfmt --check",
+		"release": "release-it",
+		"prepare": "husky",
+		"commit": "cz"
+	},
+	"config": {
+		"commitizen": {
+			"path": "node_modules/cz-git"
+		}
 	},
 	"devDependencies": {
+		"@commitlint/cli": "21.0.2",
+		"@commitlint/config-conventional": "21.0.2",
+		"@release-it-plugins/workspaces": "5.0.3",
+		"@release-it/conventional-changelog": "11.0.1",
+		"@types/node": "25.9.3",
+		"commitizen": "4.3.2",
+		"cz-git": "1.13.1",
+		"husky": "9.1.7",
 		"oxfmt": "0.55.0",
-		"oxlint": "1.70.0"
+		"oxlint": "1.70.0",
+		"release-it": "19.2.4"
 	},
 	"overrides": {
 		"@modelcontextprotocol/sdk": "1.29.0"
