@@ -1,15 +1,28 @@
 {
-  "name": "kaiten-mcp-monorepo",
-  "private": true,
-  "version": "0.1.0",
-  "workspaces": ["packages/*", "apps/*"],
-  "engines": { "node": ">=20" },
-  "scripts": {
-    "build": "npm run build -w @kaiten-mcp/core && npm run build -w kaiten-mcp",
-    "typecheck": "npm run typecheck --workspaces --if-present",
-    "test": "npm run build && npm run smoke -w kaiten-mcp && npm run test:elicit -w kaiten-mcp"
-  },
-  "overrides": {
-    "@modelcontextprotocol/sdk": "1.29.0"
-  }
+	"name": "kaiten-mcp-monorepo",
+	"private": true,
+	"version": "0.1.0",
+	"workspaces": [
+		"packages/*",
+		"apps/*"
+	],
+	"engines": {
+		"node": ">=20"
+	},
+	"scripts": {
+		"build": "npm run build -w @kaiten-mcp/core && npm run build -w kaiten-mcp",
+		"typecheck": "npm run typecheck --workspaces --if-present",
+		"test": "npm run build && npm run smoke -w kaiten-mcp && npm run test:elicit -w kaiten-mcp",
+		"lint": "oxlint",
+		"lint:fix": "oxlint --fix",
+		"format": "oxfmt",
+		"format:check": "oxfmt --check"
+	},
+	"devDependencies": {
+		"oxfmt": "0.55.0",
+		"oxlint": "1.70.0"
+	},
+	"overrides": {
+		"@modelcontextprotocol/sdk": "1.29.0"
+	}
 }
