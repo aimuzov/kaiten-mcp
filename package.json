@@ -18,7 +18,7 @@
   "format": "oxfmt",
   "format:check": "oxfmt --check",
   "release": "release-it",
-  "prepare": "husky",
+  "prepare": "node .husky/install.mjs",
   "commit": "cz"
  },
  "config": {
