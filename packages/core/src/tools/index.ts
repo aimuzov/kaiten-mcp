@@ -3,6 +3,7 @@ import { registerCardTools } from './cards.js'
 import { registerCardExtraTools } from './card-extras.js'
 import { registerChecklistTools } from './checklists.js'
 import { registerCommentTools } from './comments.js'
+import { registerExternalLinkTools } from './external-links.js'
 import { registerLookupTools } from './lookups.js'
 import { registerPlanningTools } from './planning.js'
 import { registerSearchTools } from './search.js'
@@ -17,6 +18,7 @@ export function registerAllTools(ctx: ToolContext): void {
 	registerLookupTools(ctx)
 	registerCardTools(ctx)
 	registerCardExtraTools(ctx)
+	registerExternalLinkTools(ctx)
 	registerSearchTools(ctx)
 	registerCommentTools(ctx)
 	registerChecklistTools(ctx)
