@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.2.0](https://github.com/aimuzov/kaiten-mcp/compare/v0.1.0...v0.2.0) (2026-06-23)
+
+### Features
+
+* **tools:** add card external-link management tools ([2828584](https://github.com/aimuzov/kaiten-mcp/commit/2828584fdafc7a48702a7630ae9ab332740ce7f4))
+
+### Bug Fixes
+
+* **husky:** skip prepare script in CI and production to unblock Vercel build ([8cb01ec](https://github.com/aimuzov/kaiten-mcp/commit/8cb01ec9e494d5b0ec910273a09bd58717cd6372))
+
 ## 0.1.0 (2026-06-19)
 
 ### Features

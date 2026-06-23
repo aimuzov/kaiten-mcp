@@ -1,45 +1,45 @@
 {
- "name": "kaiten-mcp-monorepo",
- "private": true,
- "version": "0.1.0",
- "workspaces": [
-  "packages/*",
-  "apps/*"
- ],
- "engines": {
-  "node": ">=20"
- },
- "scripts": {
-  "build": "npm run build -w @aimuzov/kaiten-mcp-core && npm run build -w @aimuzov/kaiten-mcp",
-  "typecheck": "npm run typecheck --workspaces --if-present",
-  "test": "npm run build && npm run smoke -w @aimuzov/kaiten-mcp && npm run test:elicit -w @aimuzov/kaiten-mcp",
-  "lint": "oxlint",
-  "lint:fix": "oxlint --fix",
-  "format": "oxfmt",
-  "format:check": "oxfmt --check",
-  "release": "release-it",
-  "prepare": "node .husky/install.mjs",
-  "commit": "cz"
- },
- "config": {
-  "commitizen": {
-   "path": "node_modules/cz-git"
+  "name": "kaiten-mcp-monorepo",
+  "private": true,
+  "version": "0.2.0",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "npm run build -w @aimuzov/kaiten-mcp-core && npm run build -w @aimuzov/kaiten-mcp",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run build && npm run smoke -w @aimuzov/kaiten-mcp && npm run test:elicit -w @aimuzov/kaiten-mcp",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
+    "release": "release-it",
+    "prepare": "node .husky/install.mjs",
+    "commit": "cz"
+  },
+  "config": {
+    "commitizen": {
+      "path": "node_modules/cz-git"
+    }
+  },
+  "devDependencies": {
+    "@commitlint/cli": "21.0.2",
+    "@commitlint/config-conventional": "21.0.2",
+    "@release-it-plugins/workspaces": "5.0.3",
+    "@release-it/conventional-changelog": "11.0.1",
+    "@types/node": "25.9.3",
+    "commitizen": "4.3.2",
+    "cz-git": "1.13.1",
+    "husky": "9.1.7",
+    "oxfmt": "0.55.0",
+    "oxlint": "1.70.0",
+    "release-it": "19.2.4"
+  },
+  "overrides": {
+    "@modelcontextprotocol/sdk": "1.29.0"
   }
- },
- "devDependencies": {
-  "@commitlint/cli": "21.0.2",
-  "@commitlint/config-conventional": "21.0.2",
-  "@release-it-plugins/workspaces": "5.0.3",
-  "@release-it/conventional-changelog": "11.0.1",
-  "@types/node": "25.9.3",
-  "commitizen": "4.3.2",
-  "cz-git": "1.13.1",
-  "husky": "9.1.7",
-  "oxfmt": "0.55.0",
-  "oxlint": "1.70.0",
-  "release-it": "19.2.4"
- },
- "overrides": {
-  "@modelcontextprotocol/sdk": "1.29.0"
- }
 }
