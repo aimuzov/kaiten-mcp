@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { compact, makeToolContext } from './helpers.js'
+import { compact, makeToolContext, normalizeMultiline } from './helpers.js'
 import type { KaitenClient } from '../kaiten-client.js'
 
 describe('compact', () => {
@@ -16,6 +16,26 @@ describe('compact', () => {
 
 	it('keeps falsy but defined values', () => {
 		expect(compact({ a: 0, b: '', c: false })).toEqual({ a: 0, b: '', c: false })
+	})
+})
+
+describe('normalizeMultiline', () => {
+	it('converts literal \\n into real newlines', () => {
+		expect(normalizeMultiline('a\\nb')).toBe('a\nb')
+	})
+
+	it('converts literal \\r\\n and \\t sequences', () => {
+		expect(normalizeMultiline('a\\r\\nb\\tc')).toBe('a\nb\tc')
+	})
+
+	it('leaves real newlines and plain text untouched', () => {
+		expect(normalizeMultiline('a\nb')).toBe('a\nb')
+		expect(normalizeMultiline('plain text')).toBe('plain text')
+	})
+
+	it('passes non-string values through unchanged', () => {
+		expect(normalizeMultiline(undefined)).toBe(undefined)
+		expect(normalizeMultiline(42)).toBe(42)
 	})
 })
 

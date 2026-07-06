@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { compact, run, type ToolContext } from './helpers.js'
+import { compact, normalizeMultiline, run, type ToolContext } from './helpers.js'
 
 export function registerCardTools(ctx: ToolContext): void {
 	const { server } = ctx
@@ -37,7 +37,13 @@ export function registerCardTools(ctx: ToolContext): void {
 				asap: z.boolean().optional().describe('Пометить как срочную (ASAP)'),
 			},
 		},
-		(args, extra) => run(ctx, extra, (client) => client.post('/cards', compact(args))),
+		(args, extra) =>
+			run(ctx, extra, (client) =>
+				client.post(
+					'/cards',
+					compact({ ...args, description: normalizeMultiline(args.description) }),
+				),
+			),
 	)
 
 	server.registerTool(
@@ -61,7 +67,12 @@ export function registerCardTools(ctx: ToolContext): void {
 		},
 		(args, extra) => {
 			const { card_id, ...rest } = args
-			return run(ctx, extra, (client) => client.patch(`/cards/${card_id}`, compact(rest)))
+			return run(ctx, extra, (client) =>
+				client.patch(
+					`/cards/${card_id}`,
+					compact({ ...rest, description: normalizeMultiline(rest.description) }),
+				),
+			)
 		},
 	)
 

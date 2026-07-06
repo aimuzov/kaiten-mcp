@@ -59,6 +59,20 @@ export async function run(
 }
 
 /**
+ * Превращает буквальные escape-последовательности (`\n`, `\r\n`, `\t`) в реальные
+ * переносы строк и табуляции. Такие литералы попадают в значение, когда JSON тела
+ * запроса собирают вручную (напр. через `jq --arg`, не раскрывающий escape) — Kaiten
+ * сохранил бы их как видимый текст `\n`. Не-строки возвращаются без изменений.
+ */
+export function normalizeMultiline<T>(value: T): T {
+	if (typeof value !== 'string') return value
+	return value
+		.replace(/\\r\\n/g, '\n')
+		.replace(/\\n/g, '\n')
+		.replace(/\\t/g, '\t') as T
+}
+
+/**
  * Убирает из объекта-параметра ключи со значением undefined,
  * чтобы не отправлять их в query/тело запроса Kaiten.
  * Явный null сохраняется — так PATCH может сбросить поле (напр. due_date).
