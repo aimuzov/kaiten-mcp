@@ -61,11 +61,12 @@ export async function run(
 /**
  * Убирает из объекта-параметра ключи со значением undefined,
  * чтобы не отправлять их в query/тело запроса Kaiten.
+ * Явный null сохраняется — так PATCH может сбросить поле (напр. due_date).
  */
 export function compact<T extends Record<string, unknown>>(obj: T): Partial<T> {
 	const out: Partial<T> = {}
 	for (const [key, value] of Object.entries(obj)) {
-		if (value !== undefined && value !== null) {
+		if (value !== undefined) {
 			out[key as keyof T] = value as T[keyof T]
 		}
 	}
