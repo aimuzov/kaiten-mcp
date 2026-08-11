@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.3.0](https://github.com/aimuzov/kaiten-mcp/compare/v0.2.0...v0.3.0) (2026-08-11)
+
+### Features
+
+* **cards:** normalize literal newline escapes in description ([b289dad](https://github.com/aimuzov/kaiten-mcp/commit/b289dad9542c5981aa699a7c887f4f51246020c6))
+
+### Bug Fixes
+
+* **tools:** preserve explicit null in compact() so PATCH can reset fields ([0544aac](https://github.com/aimuzov/kaiten-mcp/commit/0544aac3df60950708d8313f4b708bb2333c3265))
+
 ## [0.2.0](https://github.com/aimuzov/kaiten-mcp/compare/v0.1.0...v0.2.0) (2026-06-23)
 
 ### Features
