@@ -1,0 +1,41 @@
+# kaiten-mcp на сервере проектов. Порты 80 и 443 у общего Caddy из aimuzov/infra-server,
+# он проксирует домен сюда по сети `edge`.
+
+name: kaiten-mcp
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: 5m
+    max-file: 2
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    image: kaiten-mcp
+    container_name: kaiten-mcp
+    restart: unless-stopped
+    env_file: ../.env
+    volumes:
+      - data:/data
+    mem_limit: 256m
+    healthcheck:
+      test: [CMD, wget, -qO-, http://127.0.0.1:8080/health]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - edge
+    logging: *logging
+
+volumes:
+  data:
+    name: kaiten-mcp-data
+
+networks:
+  edge:
+    name: edge
+    external: true
