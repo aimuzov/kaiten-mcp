@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.1](https://github.com/aimuzov/kaiten-mcp/compare/v1.2.0...v1.2.1) (2026-10-25)
+
+
+### Bug Fixes
+
+* **deps:** move to infra-mcp-kit 3.0.1 with the MCP connector header ([7983d6a](https://github.com/aimuzov/kaiten-mcp/commit/7983d6ae1287734a4acaef2b304a6b47d789594c))
+* **deps:** move to infra-mcp-kit 3.0.1 with the MCP connector header ([6d1ad9e](https://github.com/aimuzov/kaiten-mcp/commit/6d1ad9e62e93c67cf2425a613da1ca64d454212f))
+
 ## [1.2.0](https://github.com/aimuzov/kaiten-mcp/compare/v1.1.1...v1.2.0) (2026-10-25)
 
 
