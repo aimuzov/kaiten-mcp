@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.1.0](https://github.com/aimuzov/kaiten-mcp/compare/v1.0.1...v1.1.0) (2026-10-25)
+
+
+### Features
+
+* move the pages to infra-mcp-kit 2.0 on Astro ([871b084](https://github.com/aimuzov/kaiten-mcp/commit/871b084917c44040b672283d4494a7ddb815a04c))
+* move the pages to infra-mcp-kit 2.0 on Astro ([6689896](https://github.com/aimuzov/kaiten-mcp/commit/6689896fb577b4d0e8506cd6ac8b7763dd6928d5))
+
+
+### Bug Fixes
+
+* keep the browser test out of astro check ([369ed76](https://github.com/aimuzov/kaiten-mcp/commit/369ed7671e28c2747dc21a803379f3edc2eb040a))
+
 ## [1.0.1](https://github.com/aimuzov/kaiten-mcp/compare/v1.0.0...v1.0.1) (2026-10-25)
 
 
