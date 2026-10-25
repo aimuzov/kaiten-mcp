@@ -1,6 +1,4 @@
-import { failure, text, type Logger } from '@aimuzov/infra-mcp-kit'
-import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
-import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js'
+import { failure, text, type CallToolResult, type Logger, type McpServer } from '@aimuzov/infra-mcp-kit'
 
 import type { Config } from '#kaiten/config'
 import type { KaitenClient } from '#kaiten/kaiten-client'
