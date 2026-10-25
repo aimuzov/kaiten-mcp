@@ -26,12 +26,13 @@ let running: RunningHttp | undefined
 
 after(async () => {
 	await running?.close()
-	mock.restoreAll()
+	mock.timers.reset()
 })
 
 test('auth.db и токены кита 2.1 работают на 3.0: доступ, refresh и отказ повтору', async () => {
 	// Токены выпущены в момент createdAt: часы ставим на минуту позже, пока access ещё жив.
-	mock.method(Date, 'now', () => fixture.createdAt + 60_000)
+	// Подменяем весь Date, а не Date.now: jose сверяет срок по `new Date()`.
+	mock.timers.enable({ apis: ['Date'], now: fixture.createdAt + 60_000 })
 
 	const db = join(mkdtempSync(join(tmpdir(), 'kaiten-compat-')), 'auth.db')
 
