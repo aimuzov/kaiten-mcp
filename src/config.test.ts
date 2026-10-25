@@ -22,13 +22,13 @@ test('без переменных креды пусты, а числа беру�
 	})
 })
 
-test('настройки из окружения зажимаются в допустимые рамки', () => {
+test('настройки берутся из окружения', () => {
 	const config = loadConfig({
 		KAITEN_API_URL: 'x.kaiten.ru',
 		KAITEN_API_TOKEN: ' t ',
 		KAITEN_DEFAULT_SPACE_ID: '42',
-		KAITEN_REQUEST_TIMEOUT_MS: '10',
-		KAITEN_MAX_CONCURRENT_REQUESTS: '99',
+		KAITEN_REQUEST_TIMEOUT_MS: '1000',
+		KAITEN_MAX_CONCURRENT_REQUESTS: '20',
 		KAITEN_LOG_LEVEL: 'DEBUG',
 	})
 
@@ -38,7 +38,28 @@ test('настройки из окружения зажимаются в доп�
 	assert.equal(config.requestTimeoutMs, 1000)
 	assert.equal(config.maxConcurrentRequests, 20)
 	assert.equal(config.logLevel, 'debug')
-	assert.equal(loadConfig({ KAITEN_LOG_LEVEL: 'loud', KAITEN_DEFAULT_SPACE_ID: 'x' }).logLevel, 'info')
+})
+
+test('пустая переменная берёт значение по умолчанию', () => {
+	const config = loadConfig({ KAITEN_DEFAULT_SPACE_ID: ' ', KAITEN_REQUEST_TIMEOUT_MS: '', KAITEN_LOG_LEVEL: '' })
+
+	assert.equal(config.defaultSpaceId, undefined)
+	assert.equal(config.requestTimeoutMs, 30_000)
+	assert.equal(config.logLevel, 'info')
+})
+
+test('мусор в переменной -- ошибка с её именем, а не тихое значение по умолчанию', () => {
+	assert.throws(() => loadConfig({ KAITEN_DEFAULT_SPACE_ID: 'abc' }), /KAITEN_DEFAULT_SPACE_ID: .*"abc"/)
+	assert.throws(() => loadConfig({ KAITEN_DEFAULT_SPACE_ID: '0' }), /KAITEN_DEFAULT_SPACE_ID/)
+
+	assert.throws(
+		() => loadConfig({ KAITEN_REQUEST_TIMEOUT_MS: '10' }),
+		/KAITEN_REQUEST_TIMEOUT_MS: .*от 1000 до 600000/,
+	)
+
+	assert.throws(() => loadConfig({ KAITEN_REQUEST_TIMEOUT_MS: '30s' }), /KAITEN_REQUEST_TIMEOUT_MS/)
+	assert.throws(() => loadConfig({ KAITEN_MAX_CONCURRENT_REQUESTS: '99' }), /KAITEN_MAX_CONCURRENT_REQUESTS/)
+	assert.throws(() => loadConfig({ KAITEN_LOG_LEVEL: 'loud' }), /KAITEN_LOG_LEVEL: .*"loud"/)
 })
 
 test('в логах от токена остаются только края', () => {

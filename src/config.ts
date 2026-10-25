@@ -1,4 +1,4 @@
-import { int, str, type Env } from '@aimuzov/infra-mcp-kit'
+import { str, type Env } from '@aimuzov/infra-mcp-kit'
 import type { LogLevel } from '@aimuzov/infra-mcp-kit'
 
 export type Config = {
@@ -13,7 +13,7 @@ export type Config = {
 	logFile?: string
 }
 
-const LOG_LEVELS = new Set<string>(['error', 'warn', 'info', 'debug'])
+const LOG_LEVELS: readonly LogLevel[] = ['error', 'warn', 'info', 'debug']
 
 /**
  * Принимает и `https://x.kaiten.ru`, и `x.kaiten.ru/api/latest`,
@@ -29,25 +29,48 @@ export function normalizeApiUrl(raw: string): string {
 	return url
 }
 
-const clamp = (n: number, min: number, max: number) => Math.min(max, Math.max(min, n))
+/** Целое из окружения: пусто -- `undefined`, мусор и выход за рамки -- ошибка. */
+function intIn(env: Env, name: string, min: number, max = Number.MAX_SAFE_INTEGER): number | undefined {
+	const raw = str(env, name)
+
+	if (!raw) return undefined
+
+	const value = /^\d+$/.test(raw) ? Number(raw) : Number.NaN
+
+	if (!(value >= min && value <= max)) {
+		const range = max === Number.MAX_SAFE_INTEGER ? `от ${min}` : `от ${min} до ${max}`
+
+		throw new Error(`${name}: нужно целое ${range}, а задано "${raw}"`)
+	}
+
+	return value
+}
+
+function logLevel(env: Env): LogLevel {
+	const raw = str(env, 'KAITEN_LOG_LEVEL', 'info')
+	const level = LOG_LEVELS.find((known) => known === raw.toLowerCase())
+
+	if (!level) throw new Error(`KAITEN_LOG_LEVEL: нужно одно из ${LOG_LEVELS.join(', ')}, а задано "${raw}"`)
+
+	return level
+}
 
 /**
  * Настройки из окружения. `KAITEN_API_URL` и `KAITEN_API_TOKEN` не обязательны:
  * без них stdio-сервер спросит креды через elicitation при первом обращении к API.
+ * Пустая переменная берёт значение по умолчанию, мусор в ней -- ошибка запуска.
  */
 export function loadConfig(env: Env = process.env): Config {
 	const apiUrl = str(env, 'KAITEN_API_URL')
 	const apiToken = str(env, 'KAITEN_API_TOKEN')
-	const level = str(env, 'KAITEN_LOG_LEVEL', 'info').toLowerCase()
-	const spaceId = str(env, 'KAITEN_DEFAULT_SPACE_ID')
 
 	return {
 		apiUrl: apiUrl ? normalizeApiUrl(apiUrl) : undefined,
 		apiToken: apiToken || undefined,
-		defaultSpaceId: /^\d+$/.test(spaceId) ? Number(spaceId) : undefined,
-		requestTimeoutMs: clamp(int(env, 'KAITEN_REQUEST_TIMEOUT_MS', 30_000), 1000, 600_000),
-		maxConcurrentRequests: clamp(int(env, 'KAITEN_MAX_CONCURRENT_REQUESTS', 5), 1, 20),
-		logLevel: (LOG_LEVELS.has(level) ? level : 'info') as LogLevel,
+		defaultSpaceId: intIn(env, 'KAITEN_DEFAULT_SPACE_ID', 1),
+		requestTimeoutMs: intIn(env, 'KAITEN_REQUEST_TIMEOUT_MS', 1000, 600_000) ?? 30_000,
+		maxConcurrentRequests: intIn(env, 'KAITEN_MAX_CONCURRENT_REQUESTS', 1, 20) ?? 5,
+		logLevel: logLevel(env),
 		logFile: str(env, 'KAITEN_LOG_FILE') || undefined,
 	}
 }
