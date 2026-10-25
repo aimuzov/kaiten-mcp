@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.2](https://github.com/aimuzov/kaiten-mcp/compare/v1.2.1...v1.2.2) (2026-10-25)
+
+
+### Bug Fixes
+
+* **deps:** move to infra-mcp-kit 3.0.2 so the theme peek stops lagging ([c8c77f1](https://github.com/aimuzov/kaiten-mcp/commit/c8c77f17d41aa2cc64042fb614ac163a53ec83be))
+* **deps:** move to infra-mcp-kit 3.0.2 so the theme peek stops lagging ([2eca03d](https://github.com/aimuzov/kaiten-mcp/commit/2eca03dd077156725e985a608df2af9a49e6f90f))
+
 ## [1.2.1](https://github.com/aimuzov/kaiten-mcp/compare/v1.2.0...v1.2.1) (2026-10-25)
 
 
