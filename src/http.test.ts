@@ -4,15 +4,16 @@ import { createLogger, type Logger } from '@aimuzov/infra-mcp-kit'
 import { createHttpApp, memoryStore, type HttpConfig } from '@aimuzov/infra-mcp-kit/http'
 import {
 	connectHttp,
-	hiddenField,
+	fakePages,
 	oauthFlow,
 	startHttp,
+	submitForm,
 	textOf,
 	type RunningHttp,
 } from '@aimuzov/infra-mcp-kit/testing'
 
 import type { Config } from './config.ts'
-import { ClientCache, hostedOptions } from './http.ts'
+import { ClientCache, hostedOptions, kaitenLogin } from './http.ts'
 import { fakeKaiten, GOOD_TOKEN } from './testing/fake-kaiten.ts'
 import type { UrlGuard } from './url-guard.ts'
 
@@ -24,6 +25,7 @@ const moving = await fakeKaiten({
 	'GET /users/current': () => ({ status: 302, headers: { location: 'http://169.254.169.254/' } }),
 })
 const running: RunningHttp[] = []
+const publicDir = fakePages()
 
 after(async () => {
 	await Promise.all(running.map((r) => r.close()))
@@ -48,7 +50,7 @@ async function start({ config = base, realGuard = false, logger = quiet }: Start
 			allowedRedirectUris: [],
 		}
 
-		return createHttpApp(hostedOptions({ config, logger, http, store: memoryStore(), guardUrl })).app
+		return createHttpApp(hostedOptions({ config, logger, http, store: memoryStore(), guardUrl, publicDir })).app
 	})
 
 	running.push(app)
@@ -56,20 +58,12 @@ async function start({ config = base, realGuard = false, logger = quiet }: Start
 	return app.base
 }
 
-const submit = (fields: Record<string, string>) => (page: string, callback: URL) =>
-	fetch(callback, {
-		method: 'POST',
-		redirect: 'manual',
-		headers: { 'content-type': 'application/x-www-form-urlencoded' },
-		body: new URLSearchParams({ request: hiddenField(page, 'request'), ...fields }),
-	})
-
 describe('удалённый коннектор', () => {
 	test('вход токеном Kaiten доводит до инструмента, а сам токен из токена доступа не читается', async () => {
 		const url = await start()
 		const flow = await oauthFlow({
 			base: url,
-			login: submit({ kaiten_url: kaiten.apiUrl, kaiten_token: GOOD_TOKEN }),
+			login: submitForm({ kaiten_url: kaiten.apiUrl, kaiten_token: GOOD_TOKEN }),
 		})
 		const leaked = flow.tokens.access_token
 			.split('.')
@@ -90,7 +84,7 @@ describe('удалённый коннектор', () => {
 	test('код меняется на токены только один раз', async () => {
 		const flow = await oauthFlow({
 			base: await start(),
-			login: submit({ kaiten_url: kaiten.apiUrl, kaiten_token: GOOD_TOKEN }),
+			login: submitForm({ kaiten_url: kaiten.apiUrl, kaiten_token: GOOD_TOKEN }),
 		})
 		const again = await flow.exchangeAgain()
 
@@ -100,30 +94,33 @@ describe('удалённый коннектор', () => {
 
 	test('неверный токен возвращает форму с ошибкой, а не выдаёт код', async () => {
 		await assert.rejects(
-			oauthFlow({ base: await start(), login: submit({ kaiten_url: kaiten.apiUrl, kaiten_token: 'bad' }) }),
+			oauthFlow({ base: await start(), login: submitForm({ kaiten_url: kaiten.apiUrl, kaiten_token: 'bad' }) }),
 			/Kaiten не узнал этот токен/,
 		)
 	})
 
 	test('с KAITEN_API_URL адрес на форме не спрашивается', async () => {
-		const url = await start({ config: { ...base, apiUrl: kaiten.apiUrl } })
+		const config = { ...base, apiUrl: kaiten.apiUrl }
 		const flow = await oauthFlow({
-			base: url,
-			login: async (page, callback) => {
-				assert.doesNotMatch(page, /name="kaiten_url"/)
+			base: await start({ config }),
+			login: async (step) => {
+				assert.equal(step.page, '/login')
 
-				return submit({ kaiten_token: GOOD_TOKEN })(page, callback)
+				return submitForm({ kaiten_token: GOOD_TOKEN })(step)
 			},
 		})
 
 		assert.ok(flow.tokens.access_token)
+		// Страница статическая: поле адреса она прячет по этому флагу во фрагменте.
+		assert.deepEqual(kaitenLogin(config, quiet).context, { kaitenUrl: 'fixed' })
+		assert.equal(kaitenLogin(base, quiet).context, undefined)
 	})
 
 	test('адрес без Kaiten API -- так и сказано на форме', async () => {
 		const wrong = kaiten.apiUrl.replace('/api/latest', '/nope')
 
 		await assert.rejects(
-			oauthFlow({ base: await start(), login: submit({ kaiten_url: wrong, kaiten_token: GOOD_TOKEN }) }),
+			oauthFlow({ base: await start(), login: submitForm({ kaiten_url: wrong, kaiten_token: GOOD_TOKEN }) }),
 			/нет Kaiten API/,
 		)
 	})
@@ -132,7 +129,7 @@ describe('удалённый коннектор', () => {
 		await assert.rejects(
 			oauthFlow({
 				base: await start(),
-				login: submit({ kaiten_url: 'https://exa mple', kaiten_token: GOOD_TOKEN }),
+				login: submitForm({ kaiten_url: 'https://exa mple', kaiten_token: GOOD_TOKEN }),
 			}),
 			/не похоже на адрес Kaiten/,
 		)
@@ -146,7 +143,7 @@ describe('удалённый коннектор', () => {
 		await assert.rejects(
 			oauthFlow({
 				base: await start({ logger }),
-				login: submit({ kaiten_url: failing.apiUrl, kaiten_token: GOOD_TOKEN }),
+				login: submitForm({ kaiten_url: failing.apiUrl, kaiten_token: GOOD_TOKEN }),
 			}),
 			/Не получилось достучаться до Kaiten/,
 		)
@@ -161,7 +158,10 @@ describe('удалённый коннектор', () => {
 
 	test('редирект при входе -- ошибка, по нему не идём', async () => {
 		await assert.rejects(
-			oauthFlow({ base: await start(), login: submit({ kaiten_url: moving.apiUrl, kaiten_token: GOOD_TOKEN }) }),
+			oauthFlow({
+				base: await start(),
+				login: submitForm({ kaiten_url: moving.apiUrl, kaiten_token: GOOD_TOKEN }),
+			}),
 			/отвечает редиректом/,
 		)
 
@@ -172,7 +172,7 @@ describe('удалённый коннектор', () => {
 		const url = await start({ realGuard: true })
 		const port = new URL(kaiten.apiUrl).port
 		const login = (kaitenUrl: string) =>
-			oauthFlow({ base: url, login: submit({ kaiten_url: kaitenUrl, kaiten_token: GOOD_TOKEN }) })
+			oauthFlow({ base: url, login: submitForm({ kaiten_url: kaitenUrl, kaiten_token: GOOD_TOKEN }) })
 		const before = kaiten.requests.length
 
 		await assert.rejects(login(kaiten.apiUrl), /должен начинаться с https/)
@@ -182,10 +182,10 @@ describe('удалённый коннектор', () => {
 		assert.equal(kaiten.requests.length, before)
 	})
 
-	test('лендинг в стиле кита и /health', async () => {
+	test('лендинг из собранных страниц и /health', async () => {
 		const url = await start()
 
-		assert.match(await (await fetch(url)).text(), /kaiten[\s\S]*\/mcp/)
+		assert.match(await (await fetch(url)).text(), /page:index/)
 		assert.deepEqual(await (await fetch(`${url}/health`)).json(), { ok: true })
 		assert.equal((await fetch(`${url}/mcp`, { method: 'POST', body: '{}' })).status, 401)
 	})

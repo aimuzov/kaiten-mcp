@@ -8,3 +8,6 @@ build
 .env
 **/*.test.ts
 src/testing
+test-results
+.astro
+src/**/*.e2e.ts
