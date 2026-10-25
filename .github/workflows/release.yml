@@ -9,8 +9,8 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: Release tag to publish and deploy, e.g. v1.2.0.
-        required: true
+        description: Release tag to publish and deploy, e.g. v1.2.0. Empty deploys the newest main.
+        required: false
 
 # Релизы идут по одному, новый не прерывает уже начатый деплой.
 concurrency:
@@ -42,7 +42,7 @@ jobs:
     # (ручной запуск), но отменённый прогон не публикует.
     if: >-
       !cancelled() && vars.NPM_PUBLISH == 'true' &&
-      (github.event_name == 'workflow_dispatch' || needs.check.result == 'success')
+      (github.event_name == 'workflow_dispatch' && inputs.tag != '' || needs.check.result == 'success')
     runs-on: ubuntu-latest
     timeout-minutes: 10
     environment:
@@ -73,6 +73,5 @@ jobs:
       - uses: aimuzov/infra-site-kit/deploy@v4
         with:
           ssh-key: ${{ secrets.DEPLOY_SSH_KEY }}
-          url: https://kaiten-mcp.aimuzov.online
-          health-url: https://kaiten-mcp.aimuzov.online/health
+          url: https://kaiten-mcp.aimuzov.online/health
           ref: ${{ needs.release.outputs.tag || inputs.tag }}
