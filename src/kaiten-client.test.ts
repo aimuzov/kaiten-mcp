@@ -39,6 +39,7 @@ test('пауза повтора: Retry-After в секундах, иначе э�
 
 test('GET уходит с токеном и query, тело PATCH -- JSON', async () => {
 	await client().listCards({ board_id: 3, skip: undefined })
+
 	assert.equal(
 		await client()
 			.patch('/cards/1', { title: 'x', due_date: null })

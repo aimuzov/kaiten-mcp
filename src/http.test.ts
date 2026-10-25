@@ -69,6 +69,7 @@ describe('удалённый коннектор', () => {
 			JSON.parse(textOf(await client.callTool({ name: 'kaiten_get_current_user', arguments: {} }))).id,
 			7,
 		)
+
 		await client.close()
 	})
 
