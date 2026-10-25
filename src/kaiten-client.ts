@@ -3,6 +3,7 @@ import type { Logger } from '@aimuzov/infra-mcp-kit'
 import type { Config } from './config.ts'
 import type { CredentialsProvider } from './credentials.ts'
 import type { KaitenBoard, KaitenCard, KaitenColumn, KaitenLane, KaitenSpace, KaitenUser } from './types.ts'
+import type { UrlGuard } from './url-guard.ts'
 
 export type Method = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE'
 
@@ -102,23 +103,36 @@ export function retryDelay(retryAfter: string | null, attempt: number): number {
 	return Math.min(2 ** attempt * 250, 5000)
 }
 
+export type ClientOptions = {
+	/**
+	 * Для адреса, который ввёл посетитель формы: проверка перед каждым запросом,
+	 * а редирект считается ошибкой, иначе он увёл бы запрос во внутреннюю сеть.
+	 */
+	guardUrl?: UrlGuard
+}
+
 export class KaitenClient {
 	private readonly semaphore: Semaphore
 	private readonly logger: Logger
 	private readonly credentials: CredentialsProvider
 	private readonly timeoutMs: number
+	private readonly guardUrl?: UrlGuard
 
-	constructor(config: Config, credentials: CredentialsProvider, logger: Logger) {
+	constructor(config: Config, credentials: CredentialsProvider, logger: Logger, options: ClientOptions = {}) {
 		this.logger = logger
 		this.credentials = credentials
 		this.timeoutMs = config.requestTimeoutMs
 		this.semaphore = new Semaphore(config.maxConcurrentRequests)
+		this.guardUrl = options.guardUrl
 	}
 
 	/** Запрос с повторами по `canRetry` и с лимитом одновременных запросов. */
 	async request<T = unknown>(method: Method, path: string, options: RequestOptions = {}): Promise<T> {
 		// Креды берём до слота семафора: пока человек вводит их в диалоге, пул не должен стоять.
 		const { apiUrl, apiToken } = await this.credentials.get()
+
+		await this.guardUrl?.(apiUrl)
+
 		const release = await this.semaphore.acquire()
 		const url = `${apiUrl}${path}${toQuery(options.params)}`
 
@@ -138,12 +152,23 @@ export class KaitenClient {
 						},
 						body: options.data === undefined ? undefined : JSON.stringify(options.data),
 						signal: AbortSignal.timeout(this.timeoutMs),
+						redirect: this.guardUrl ? 'manual' : 'follow',
 					})
 				} catch (error) {
 					throw this.networkError(error, method, path)
 				}
 
 				if (response.ok) return (await this.readJson(response, method, path)) as T
+
+				if (this.guardUrl && response.status >= 300 && response.status < 400) {
+					await response.body?.cancel()
+					this.logger.error('Kaiten request redirected', { method, path, status: response.status })
+
+					throw new KaitenApiError(
+						`Kaiten API ${method} ${path}: адрес отвечает редиректом (HTTP ${response.status})`,
+						response.status,
+					)
+				}
 
 				const retryAfter = response.headers.get('retry-after')
 
