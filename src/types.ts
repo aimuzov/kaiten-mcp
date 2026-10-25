@@ -50,6 +50,8 @@ export type KaitenCard = {
 	condition?: number
 	archived?: boolean
 	due_date?: string | null
+	/** Срок задан с часами и минутами. Без них `due_date` -- просто календарная дата. */
+	due_date_time_present?: boolean
 	sort_order?: number
 	owner_id?: number
 	responsible_id?: number
