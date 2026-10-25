@@ -3,7 +3,6 @@ import { createLogger, loadEnvFile, runCli } from '@aimuzov/infra-mcp-kit'
 
 import { loadConfig } from './config.ts'
 import { CredentialsProvider } from './credentials.ts'
-import { serveHosted } from './http.ts'
 import { createStdioServer, NAME, VERSION } from './server.ts'
 
 const USAGE = `Usage: kaiten-mcp [serve [--http] | --help | --version]
@@ -44,5 +43,6 @@ await runCli({
 			new CredentialsProvider({ apiUrl: config.apiUrl, apiToken: config.apiToken }, logger),
 			logger,
 		),
-	http: () => serveHosted(config, logger),
+	// Express и OAuth грузятся только для коннектора, stdio-процесс стартует без них.
+	http: async () => (await import('./http.ts')).serveHosted(config, logger),
 })
