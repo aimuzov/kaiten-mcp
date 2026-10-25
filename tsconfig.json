@@ -14,5 +14,5 @@
 		"customConditions": ["kaiten-dev"]
 	},
 	"include": [".astro/types.d.ts", "src", "*.mjs", "*.js"],
-	"exclude": ["build"]
+	"exclude": ["build", "src/**/*.e2e.ts"]
 }

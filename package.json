@@ -49,7 +49,7 @@
 	"scripts": {
 		"start": "node --conditions=kaiten-dev src/index.ts",
 		"build": "rm -rf build && tsc -p tsconfig.build.json && chmod +x build/index.js && astro build",
-		"typecheck": "tsc",
+		"typecheck": "tsc && tsc -p tsconfig.e2e.json",
 		"test": "node --conditions=kaiten-dev --test 'src/**/*.test.ts'",
 		"format": "oxlint --fix && prettier --write .",
 		"format:check": "prettier --check .",
