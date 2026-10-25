@@ -14,14 +14,22 @@ function localDateKey(d: Date): string {
 	return `${y}-${m}-${day}`
 }
 
-/** Извлекает YYYY-MM-DD из значения due_date карточки (ISO или дата). */
-function dueDateKey(due: unknown): string | null {
+/**
+ * YYYY-MM-DD срока карточки в той же зоне, что и "сегодня".
+ *
+ * Срок со временем -- это момент, и его дату считаем по местному времени, иначе полночь
+ * по Москве оказалась бы вчерашним днём по UTC. Срок без времени -- календарная дата,
+ * её сдвигать нельзя: в поясе к западу от UTC она уехала бы на день назад.
+ */
+function dueDateKey(card: KaitenCard): string | null {
+	const due = card.due_date
+
 	if (typeof due !== 'string' || due.trim() === '') return null
 
-	// due_date обычно ISO: "2026-06-17T12:00:00.000Z" или "2026-06-17".
-	const match = due.match(/^(\d{4}-\d{2}-\d{2})/)
+	const date = due.match(/^(\d{4}-\d{2}-\d{2})/)?.[1] ?? null
+	const instant = /T\d{2}:\d{2}/.test(due) && card.due_date_time_present !== false ? new Date(due) : null
 
-	return match?.[1] ?? null
+	return instant && !Number.isNaN(instant.getTime()) ? localDateKey(instant) : date
 }
 
 /** Карточка в колонке типа "готово" (type === 3)? Best-effort, если поле есть. */
@@ -46,7 +54,7 @@ type PlanCard = {
 }
 
 function toPlanCard(card: KaitenCard, todayKey: string): PlanCard {
-	const key = dueDateKey(card.due_date)
+	const key = dueDateKey(card)
 
 	return {
 		id: card.id,

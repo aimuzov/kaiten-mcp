@@ -179,28 +179,42 @@ describe('kaiten_today_tasks', () => {
 		assert.equal(kaiten.requests.length, before)
 	})
 
-	test(
-		'срок с часовым поясом считается по локальной дате, а не по UTC',
-		{
-			skip: 'bug: due_date режется по первым 10 символам ISO, а "сегодня" берётся по локальному времени',
-		},
-		async () => {
-			const tz = process.env.TZ
+	test('срок с часовым поясом считается по локальной дате, а не по UTC', async () => {
+		const tz = process.env.TZ
 
-			process.env.TZ = 'Europe/Moscow'
+		process.env.TZ = 'Europe/Moscow'
 
-			try {
-				// 2026-06-16T21:30Z -- это 17 июня 00:30 по Москве.
-				cards = [{ id: 1, title: 'Полночь', due_date: '2026-06-16T21:30:00.000Z' }]
+		try {
+			// 2026-06-16T21:30Z -- это 17 июня 00:30 по Москве.
+			cards = [{ id: 1, title: 'Полночь', due_date: '2026-06-16T21:30:00.000Z' }]
 
-				const { data } = await call('kaiten_today_tasks', { as_of_date: TODAY, include_overdue: false })
+			const { data } = await call('kaiten_today_tasks', { as_of_date: TODAY, include_overdue: false })
 
-				assert.deepEqual(ids(data.cards), [1])
-			} finally {
-				process.env.TZ = tz
-			}
-		},
-	)
+			assert.deepEqual(ids(data.cards), [1])
+		} finally {
+			process.env.TZ = tz
+		}
+	})
+
+	test('срок без времени остаётся своей датой и к западу от UTC', async () => {
+		const tz = process.env.TZ
+
+		process.env.TZ = 'America/New_York'
+
+		try {
+			// По Нью-Йорку полночь UTC -- ещё 16 июня, но время у срока не задано.
+			cards = [
+				{ id: 1, title: 'Дата', due_date: `${TODAY}T00:00:00.000Z`, due_date_time_present: false },
+				{ id: 2, title: 'Без времени', due_date: TODAY },
+			]
+
+			const { data } = await call('kaiten_today_tasks', { as_of_date: TODAY, include_overdue: false })
+
+			assert.deepEqual(ids(data.cards), [1, 2])
+		} finally {
+			process.env.TZ = tz
+		}
+	})
 })
 
 describe('kaiten_overdue_cards', () => {
