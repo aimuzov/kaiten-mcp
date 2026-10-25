@@ -1,6 +1,6 @@
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { dataDir, type Env, type Logger } from '@aimuzov/infra-mcp-kit'
+import { dataDir, type AuthInfo, type Env, type Logger } from '@aimuzov/infra-mcp-kit'
 import {
 	loadHttpConfig,
 	LoginError,
@@ -12,7 +12,6 @@ import {
 	type HttpConfig,
 	type Login,
 } from '@aimuzov/infra-mcp-kit/http'
-import type { AuthInfo } from '@modelcontextprotocol/sdk/server/auth/types.js'
 
 import { normalizeApiUrl, type Config } from './config.ts'
 import { CredentialsProvider } from './credentials.ts'

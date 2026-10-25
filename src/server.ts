@@ -1,5 +1,4 @@
-import { readVersion, type Logger } from '@aimuzov/infra-mcp-kit'
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
+import { McpServer, readVersion, type Logger } from '@aimuzov/infra-mcp-kit'
 
 import type { Config } from './config.ts'
 import type { CredentialElicitor, CredentialsProvider } from './credentials.ts'

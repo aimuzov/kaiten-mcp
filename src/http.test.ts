@@ -52,7 +52,7 @@ async function start({ config = base, realGuard = false, guard, logger = quiet }
 			allowedRedirectUris: [],
 		}
 
-		return createHttpApp(hostedOptions({ config, logger, http, store: memoryStore(), guardUrl, publicDir })).app
+		return createHttpApp(hostedOptions({ config, logger, http, store: memoryStore(), guardUrl, publicDir }))
 	})
 
 	running.push(app)

@@ -45,17 +45,16 @@ after(async () => {
 
 /** Коннектор на собранных страницах. Kaiten на 127.0.0.1, поэтому проверка адреса своя. */
 async function start(config: Config = base): Promise<string> {
-	const app = await startHttp(
-		(url) =>
-			createHttpApp(
-				hostedOptions({
-					config,
-					logger: quiet,
-					http: { port: 0, publicUrl: new URL(url), authSecret: 'x'.repeat(32), allowedRedirectUris: [] },
-					store: memoryStore(),
-					guardUrl: async () => {},
-				}),
-			).app,
+	const app = await startHttp((url) =>
+		createHttpApp(
+			hostedOptions({
+				config,
+				logger: quiet,
+				http: { port: 0, publicUrl: new URL(url), authSecret: 'x'.repeat(32), allowedRedirectUris: [] },
+				store: memoryStore(),
+				guardUrl: async () => {},
+			}),
+		),
 	)
 
 	running.push(app)

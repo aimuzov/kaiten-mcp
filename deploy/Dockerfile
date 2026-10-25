@@ -8,7 +8,9 @@ COPY tsconfig.json tsconfig.build.json astro.config.mjs svelte.config.js postcss
 COPY src ./src
 # Сборка: сервер в build/ и страницы Astro в build/public.
 # Astro и Svelte -- devDependencies, после prune в образ они не попадают.
-RUN npm run build && npm prune --omit=dev
+# --omit=optional: SDK (опциональный peer кита для тестов) и typescript (peer valibot
+# из tmcp) npm помечает devOptional, и одно --omit=dev их оставляет -- плюс 30 МБ.
+RUN npm run build && npm prune --omit=dev --omit=optional
 
 FROM node:26.11.1-alpine
 WORKDIR /app
