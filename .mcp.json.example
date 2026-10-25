@@ -1,0 +1,12 @@
+{
+	"mcpServers": {
+		"kaiten": {
+			"command": "npx",
+			"args": ["-y", "@aimuzov/kaiten-mcp"],
+			"env": {
+				"KAITEN_API_URL": "https://your-domain.kaiten.ru",
+				"KAITEN_API_TOKEN": "your-api-token"
+			}
+		}
+	}
+}

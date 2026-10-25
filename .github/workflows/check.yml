@@ -1,0 +1,21 @@
+name: Check
+
+# На main эти проверки вызывает workflow релиза перед публикацией и деплоем, а ветки
+# проверяются через PR. Отдельный прогон на push дал бы дубль на тот же коммит.
+on:
+  pull_request:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: aimuzov/infra-mcp-kit/check@v1
+        # Образ собирается и на сервере, но лучше, чтобы он сломался здесь.
+        with:
+          docker: deploy/Dockerfile

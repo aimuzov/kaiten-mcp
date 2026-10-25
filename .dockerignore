@@ -1,0 +1,10 @@
+.git
+.github
+.claude
+.serena
+node_modules
+build
+*.tgz
+.env
+**/*.test.ts
+src/testing
