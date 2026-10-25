@@ -3,6 +3,7 @@ import type { Logger } from '@aimuzov/infra-mcp-kit'
 import type { Config } from './config.ts'
 import type { CredentialsProvider } from './credentials.ts'
 import type { KaitenBoard, KaitenCard, KaitenColumn, KaitenLane, KaitenSpace, KaitenUser } from './types.ts'
+import type { UrlGuard } from './url-guard.ts'
 
 export type Method = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE'
 
@@ -56,8 +57,21 @@ class Semaphore {
 	}
 }
 
-const RETRYABLE_STATUSES = new Set([429, 500, 502, 503, 504])
+const SERVER_ERRORS = new Set([500, 502, 503, 504])
+const IDEMPOTENT = new Set<Method>(['GET', 'PUT', 'DELETE'])
 const MAX_RETRIES = 3
+const MAX_RETRY_DELAY_MS = 60_000
+
+/**
+ * Можно ли повторить запрос. После 5xx POST или PATCH мог уже создать карточку
+ * или time-log, и повтор дал бы дубль. 429 и 503 с Retry-After значат, что
+ * Kaiten запрос не принял.
+ */
+export function canRetry(method: Method, status: number, retryAfter: string | null): boolean {
+	if (status === 429 || (status === 503 && retryAfter !== null)) return true
+
+	return SERVER_ERRORS.has(status) && IDEMPOTENT.has(method)
+}
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
@@ -77,11 +91,24 @@ export function toQuery(params: Params = {}): string {
 	return text ? `?${text}` : ''
 }
 
-/** Пауза перед повтором: `Retry-After` в секундах, иначе экспонента до 5 секунд. */
+/**
+ * Пауза перед повтором: `Retry-After` в секундах, но не дольше минуты,
+ * иначе экспонента до 5 секунд.
+ */
 export function retryDelay(retryAfter: string | null, attempt: number): number {
 	const fromHeader = retryAfter === null ? Number.NaN : Number.parseFloat(retryAfter) * 1000
 
-	return Number.isFinite(fromHeader) ? fromHeader : Math.min(2 ** attempt * 250, 5000)
+	if (Number.isFinite(fromHeader)) return Math.min(Math.max(fromHeader, 0), MAX_RETRY_DELAY_MS)
+
+	return Math.min(2 ** attempt * 250, 5000)
+}
+
+export type ClientOptions = {
+	/**
+	 * Для адреса, который ввёл посетитель формы: проверка перед каждым запросом,
+	 * а редирект считается ошибкой, иначе он увёл бы запрос во внутреннюю сеть.
+	 */
+	guardUrl?: UrlGuard
 }
 
 export class KaitenClient {
@@ -89,18 +116,23 @@ export class KaitenClient {
 	private readonly logger: Logger
 	private readonly credentials: CredentialsProvider
 	private readonly timeoutMs: number
+	private readonly guardUrl?: UrlGuard
 
-	constructor(config: Config, credentials: CredentialsProvider, logger: Logger) {
+	constructor(config: Config, credentials: CredentialsProvider, logger: Logger, options: ClientOptions = {}) {
 		this.logger = logger
 		this.credentials = credentials
 		this.timeoutMs = config.requestTimeoutMs
 		this.semaphore = new Semaphore(config.maxConcurrentRequests)
+		this.guardUrl = options.guardUrl
 	}
 
-	/** Запрос с повторами на 429 и 5xx и с ограничением одновременных запросов. */
+	/** Запрос с повторами по `canRetry` и с лимитом одновременных запросов. */
 	async request<T = unknown>(method: Method, path: string, options: RequestOptions = {}): Promise<T> {
 		// Креды берём до слота семафора: пока человек вводит их в диалоге, пул не должен стоять.
 		const { apiUrl, apiToken } = await this.credentials.get()
+
+		await this.guardUrl?.(apiUrl)
+
 		const release = await this.semaphore.acquire()
 		const url = `${apiUrl}${path}${toQuery(options.params)}`
 
@@ -120,15 +152,28 @@ export class KaitenClient {
 						},
 						body: options.data === undefined ? undefined : JSON.stringify(options.data),
 						signal: AbortSignal.timeout(this.timeoutMs),
+						redirect: this.guardUrl ? 'manual' : 'follow',
 					})
 				} catch (error) {
 					throw this.networkError(error, method, path)
 				}
 
-				if (response.ok) return (await readBody(response)) as T
+				if (response.ok) return (await this.readJson(response, method, path)) as T
 
-				if (RETRYABLE_STATUSES.has(response.status) && attempt < MAX_RETRIES) {
-					const delay = retryDelay(response.headers.get('retry-after'), attempt + 1)
+				if (this.guardUrl && response.status >= 300 && response.status < 400) {
+					await response.body?.cancel()
+					this.logger.error('Kaiten request redirected', { method, path, status: response.status })
+
+					throw new KaitenApiError(
+						`Kaiten API ${method} ${path}: адрес отвечает редиректом (HTTP ${response.status})`,
+						response.status,
+					)
+				}
+
+				const retryAfter = response.headers.get('retry-after')
+
+				if (canRetry(method, response.status, retryAfter) && attempt < MAX_RETRIES) {
+					const delay = retryDelay(retryAfter, attempt + 1)
 
 					this.logger.warn('Kaiten request retry', {
 						method,
@@ -148,6 +193,25 @@ export class KaitenClient {
 			}
 		} finally {
 			release()
+		}
+	}
+
+	/** Успешный ответ обязан быть JSON: HTML от SSO или прокси не уйдёт данными. */
+	private async readJson(response: Response, method: Method, path: string): Promise<unknown> {
+		const body = await response.text()
+
+		if (!body) return null
+
+		try {
+			return JSON.parse(body)
+		} catch {
+			this.logger.error('Kaiten returned non-JSON', { method, path, status: response.status })
+
+			throw new KaitenApiError(
+				`Kaiten API ${method} ${path}: Kaiten вернул не JSON (HTTP ${response.status})`,
+				response.status,
+				body.slice(0, 500),
+			)
 		}
 	}
 
@@ -237,7 +301,7 @@ export class KaitenClient {
 	}
 }
 
-/** JSON, если он есть; пустой ответ (DELETE) даёт null, не-JSON -- текст как есть. */
+/** Тело ошибки: JSON, если он есть, иначе текст как есть. */
 async function readBody(response: Response): Promise<unknown> {
 	const body = await response.text()
 

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { after, describe, test } from 'node:test'
-import { createLogger } from '@aimuzov/infra-mcp-kit'
+import { createLogger, type Logger } from '@aimuzov/infra-mcp-kit'
 import { createHttpApp, memoryStore, type HttpConfig } from '@aimuzov/infra-mcp-kit/http'
 import {
 	connectHttp,
@@ -14,18 +14,32 @@ import {
 import type { Config } from './config.ts'
 import { ClientCache, hostedOptions } from './http.ts'
 import { fakeKaiten, GOOD_TOKEN } from './testing/fake-kaiten.ts'
+import type { UrlGuard } from './url-guard.ts'
 
 const quiet = createLogger({ level: 'error', write: () => {} })
 const base: Config = { requestTimeoutMs: 5000, maxConcurrentRequests: 5, logLevel: 'error' }
 const kaiten = await fakeKaiten()
+const failing = await fakeKaiten({ 'GET /users/current': () => ({ status: 500, headers: { 'retry-after': '0' } }) })
+const moving = await fakeKaiten({
+	'GET /users/current': () => ({ status: 302, headers: { location: 'http://169.254.169.254/' } }),
+})
 const running: RunningHttp[] = []
 
 after(async () => {
 	await Promise.all(running.map((r) => r.close()))
 	await kaiten.close()
+	await failing.close()
+	await moving.close()
 })
 
-async function start(config: Config = base): Promise<string> {
+// Фейковый Kaiten живёт на http://127.0.0.1, настоящая проверка его не пустит.
+const allowAll: UrlGuard = async () => {}
+
+type StartOptions = { config?: Config; realGuard?: boolean; logger?: Logger }
+
+async function start({ config = base, realGuard = false, logger = quiet }: StartOptions = {}): Promise<string> {
+	const guardUrl = realGuard ? undefined : allowAll
+
 	const app = await startHttp((url) => {
 		const http: HttpConfig = {
 			port: 0,
@@ -34,7 +48,7 @@ async function start(config: Config = base): Promise<string> {
 			allowedRedirectUris: [],
 		}
 
-		return createHttpApp(hostedOptions({ config, logger: quiet, http, store: memoryStore() })).app
+		return createHttpApp(hostedOptions({ config, logger, http, store: memoryStore(), guardUrl })).app
 	})
 
 	running.push(app)
@@ -92,7 +106,7 @@ describe('удалённый коннектор', () => {
 	})
 
 	test('с KAITEN_API_URL адрес на форме не спрашивается', async () => {
-		const url = await start({ ...base, apiUrl: kaiten.apiUrl })
+		const url = await start({ config: { ...base, apiUrl: kaiten.apiUrl } })
 		const flow = await oauthFlow({
 			base: url,
 			login: async (page, callback) => {
@@ -103,6 +117,69 @@ describe('удалённый коннектор', () => {
 		})
 
 		assert.ok(flow.tokens.access_token)
+	})
+
+	test('адрес без Kaiten API -- так и сказано на форме', async () => {
+		const wrong = kaiten.apiUrl.replace('/api/latest', '/nope')
+
+		await assert.rejects(
+			oauthFlow({ base: await start(), login: submit({ kaiten_url: wrong, kaiten_token: GOOD_TOKEN }) }),
+			/нет Kaiten API/,
+		)
+	})
+
+	test('мусор вместо адреса не доходит до запроса', async () => {
+		await assert.rejects(
+			oauthFlow({
+				base: await start(),
+				login: submit({ kaiten_url: 'https://exa mple', kaiten_token: GOOD_TOKEN }),
+			}),
+			/не похоже на адрес Kaiten/,
+		)
+	})
+
+	test('сбой Kaiten при входе пишется в лог с хостом, статусом и сообщением', async () => {
+		const lines: string[] = []
+		const logger = createLogger({ level: 'warn', write: (line) => lines.push(line) })
+		const host = new URL(failing.apiUrl).host
+
+		await assert.rejects(
+			oauthFlow({
+				base: await start({ logger }),
+				login: submit({ kaiten_url: failing.apiUrl, kaiten_token: GOOD_TOKEN }),
+			}),
+			/Не получилось достучаться до Kaiten/,
+		)
+
+		const warning = lines.find((line) => line.includes('Kaiten login check failed'))
+
+		assert.ok(warning)
+		assert.ok(warning.includes(host))
+		assert.match(warning, /500/)
+		assert.match(warning, /HTTP 500/)
+	})
+
+	test('редирект при входе -- ошибка, по нему не идём', async () => {
+		await assert.rejects(
+			oauthFlow({ base: await start(), login: submit({ kaiten_url: moving.apiUrl, kaiten_token: GOOD_TOKEN }) }),
+			/отвечает редиректом/,
+		)
+
+		assert.equal(moving.requests.length, 1)
+	})
+
+	test('без KAITEN_API_URL форма не пускает на http и во внутреннюю сеть', async () => {
+		const url = await start({ realGuard: true })
+		const port = new URL(kaiten.apiUrl).port
+		const login = (kaitenUrl: string) =>
+			oauthFlow({ base: url, login: submit({ kaiten_url: kaitenUrl, kaiten_token: GOOD_TOKEN }) })
+		const before = kaiten.requests.length
+
+		await assert.rejects(login(kaiten.apiUrl), /должен начинаться с https/)
+		await assert.rejects(login(`https://127.0.0.1:${port}`), /внутреннюю сеть/)
+		await assert.rejects(login('https://localhost'), /внутреннюю сеть/)
+		await assert.rejects(login('https://[::1]'), /внутреннюю сеть/)
+		assert.equal(kaiten.requests.length, before)
 	})
 
 	test('лендинг в стиле кита и /health', async () => {
@@ -116,7 +193,7 @@ describe('удалённый коннектор', () => {
 
 describe('кэш клиентов', () => {
 	test('один клиент на пару адрес и токен, давно не нужные вытесняются', () => {
-		const cache = new ClientCache(base, quiet, 2)
+		const cache = new ClientCache(base, quiet, { max: 2 })
 		const a = cache.get('https://a', 't1')
 
 		cache.get('https://b', 't2')
