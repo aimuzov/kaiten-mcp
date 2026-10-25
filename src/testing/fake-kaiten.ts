@@ -5,7 +5,13 @@ export const GOOD_TOKEN = 'good-token'
 
 export type FakeRequest = { method: string; url: string; auth?: string; body: string }
 
-export type Route = (req: FakeRequest) => { status?: number; body?: unknown; headers?: Record<string, string> }
+export type Route = (req: FakeRequest) => {
+	status?: number
+	body?: unknown
+	/** Тело как есть, не JSON: HTML от прокси и подобное. */
+	raw?: string
+	headers?: Record<string, string>
+}
 
 export type FakeKaiten = {
 	/** Адрес API, как его отдаёт `normalizeApiUrl`. */
@@ -51,7 +57,7 @@ export async function fakeKaiten(routes: Record<string, Route> = {}): Promise<Fa
 				: { status: 404, body: { message: 'Not found' } }
 
 		res.writeHead(answer.status ?? 200, { 'content-type': 'application/json', ...answer.headers })
-		res.end(answer.body === undefined ? '' : JSON.stringify(answer.body))
+		res.end(answer.raw ?? (answer.body === undefined ? '' : JSON.stringify(answer.body)))
 	})
 
 	await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve))
