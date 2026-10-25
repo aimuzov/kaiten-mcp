@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.1](https://github.com/aimuzov/kaiten-mcp/compare/v1.0.0...v1.0.1) (2026-10-25)
+
+
+### Bug Fixes
+
+* **deps:** move to infra-mcp-kit 1.0.3 so a bad token gets 401 ([34c09b5](https://github.com/aimuzov/kaiten-mcp/commit/34c09b5c9942cdbef6f02154eb759ef311dc3034))
+* **deps:** move to infra-mcp-kit 1.0.3 so a bad token gets 401 ([1167e6e](https://github.com/aimuzov/kaiten-mcp/commit/1167e6e3fa58bffe1c17eb6009ddd3cc6070fd1b))
+
 ## [1.0.0](https://github.com/aimuzov/kaiten-mcp/compare/v0.3.0...v1.0.0) (2026-10-25)
 
 
