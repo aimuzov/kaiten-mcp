@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.1](https://github.com/aimuzov/kaiten-mcp/compare/v1.1.0...v1.1.1) (2026-10-25)
+
+
+### Bug Fixes
+
+* date day-plan deadlines in the same zone as today ([4c1ba20](https://github.com/aimuzov/kaiten-mcp/commit/4c1ba20b8388fb56030755e07dd9cb8d35103a92))
+* date day-plan deadlines in the same zone as today ([3fae3df](https://github.com/aimuzov/kaiten-mcp/commit/3fae3df143e69fcb65edec55072723363cfe544c))
+
 ## [1.1.0](https://github.com/aimuzov/kaiten-mcp/compare/v1.0.1...v1.1.0) (2026-10-25)
 
 
