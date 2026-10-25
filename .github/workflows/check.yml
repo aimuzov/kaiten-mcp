@@ -16,3 +16,6 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: aimuzov/infra-mcp-kit/check@v1
+        # Образ собирается и на сервере, но лучше, чтобы он сломался здесь.
+        with:
+          docker: deploy/Dockerfile
