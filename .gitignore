@@ -4,3 +4,5 @@ build
 .env
 *.log
 .DS_Store
+.astro
+test-results

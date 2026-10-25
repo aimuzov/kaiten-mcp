@@ -1,4 +1,5 @@
 import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { dataDir, type Env, type Logger } from '@aimuzov/infra-mcp-kit'
 import {
 	loadHttpConfig,
@@ -19,13 +20,11 @@ import { KaitenApiError, KaitenClient } from './kaiten-client.ts'
 import { createServer, NAME } from './server.ts'
 import { publicUrlGuard, UnsafeUrlError, type UrlGuard } from './url-guard.ts'
 
-export const SERVICE = {
-	name: 'kaiten',
-	repo: 'https://github.com/aimuzov/kaiten-mcp',
-	accent: { light: '#e8590c', dark: '#ff8a4c' },
-}
-
-const TAGLINE = 'Карточки, доски и планирование дня Kaiten прямо из Claude'
+/**
+ * Страницы, которые собрал `astro build`. Путь один и из `src`, и из `build`:
+ * `src/http.ts` и `build/http.js` лежат на одной глубине.
+ */
+export const PUBLIC_DIR = fileURLToPath(new URL('../build/public', import.meta.url))
 
 /**
  * Клиенты Kaiten по паре адрес и токен. Клиент держит семафор на токен, поэтому один
@@ -95,31 +94,15 @@ export class ClientCache {
  * чтобы опечатка всплыла на форме, а не первой ошибкой в чате.
  */
 export function kaitenLogin(config: Config, logger: Logger, guardUrl?: UrlGuard): Login {
+	// Подписи и подсказки -- на странице `src/frontend/pages/_login.svelte`, здесь имена
+	// полей и подписи для текста ошибки. Адрес с KAITEN_API_URL не спрашиваем.
 	const fields = [
-		...(config.apiUrl
-			? []
-			: [
-					{
-						name: 'kaiten_url',
-						label: 'Адрес Kaiten',
-						type: 'url' as const,
-						placeholder: 'https://your-domain.kaiten.ru',
-						help: 'Тот, что открываешь в браузере.',
-					},
-				]),
-		{
-			name: 'kaiten_token',
-			label: 'API-токен Kaiten',
-			type: 'password' as const,
-			help: 'Профиль → API-ключи → Создать',
-		},
+		...(config.apiUrl ? [] : [{ name: 'kaiten_url', label: 'Адрес Kaiten' }]),
+		{ name: 'kaiten_token', label: 'API-токен Kaiten' },
 	]
 
-	return tokenFormLogin({
-		title: 'Подключение к Kaiten',
-		lead: 'Токен нужен только для твоих запросов. Он шифруется в токен доступа и на сервере не хранится.',
+	const login = tokenFormLogin({
 		fields,
-		submit: 'Подключить',
 		async verify(values) {
 			const apiUrl = normalizeApiUrl(config.apiUrl ?? values.kaiten_url ?? '')
 			const apiToken = values.kaiten_token ?? ''
@@ -142,6 +125,10 @@ export function kaitenLogin(config: Config, logger: Logger, guardUrl?: UrlGuard)
 			}
 		},
 	})
+
+	// Статическая страница входа не знает про KAITEN_API_URL,
+	// подсказываем ей через фрагмент.
+	return config.apiUrl ? { ...login, context: { kaitenUrl: 'fixed' } } : login
 }
 
 /** Хост из введённого адреса. С мусором человек вернётся на форму до запроса. */
@@ -187,6 +174,8 @@ export type HostedOptions = {
 	store: AuthStore
 	/** Проверка адреса из формы. Тестам с Kaiten на 127.0.0.1 нужна своя. */
 	guardUrl?: UrlGuard
+	/** Собранные страницы. Тестам без `astro build` хватает `fakePages()`. */
+	publicDir?: string
 }
 
 /** Опции удалённого коннектора. Отдельно от запуска, чтобы тесты подняли его на своём порту. */
@@ -196,6 +185,7 @@ export function hostedOptions({
 	http,
 	store,
 	guardUrl = publicUrlGuard(),
+	publicDir = PUBLIC_DIR,
 }: HostedOptions): HttpAppOptions {
 	// С KAITEN_API_URL адрес задал админ, а не посетитель формы: проверять нечего.
 	const guard = config.apiUrl ? undefined : guardUrl
@@ -203,14 +193,10 @@ export function hostedOptions({
 
 	return {
 		config: http,
-		service: SERVICE,
+		service: { name: 'kaiten' },
+		publicDir,
 		// Токен Kaiten едет в claims, поэтому токены доступа шифруются, а не только подписываются.
 		auth: { login: kaitenLogin(config, logger, guard), store, tokens: 'encrypt' },
-		landing: {
-			tagline: TAGLINE,
-			lead: 'Добавь адрес коннектора в Claude и войди своим API-токеном Kaiten.',
-			tools: ['Карточки и доски', 'Комментарии и чек-листы', 'Учёт времени', 'План на день'],
-		},
 		createServer: (auth) => createServer({ config, logger, resolveClient: () => cache.forAuth(auth) }),
 	}
 }
