@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.0.0](https://github.com/aimuzov/kaiten-mcp/compare/v0.3.0...v1.0.0) (2026-10-25)
+
+
+### ⚠ BREAKING CHANGES
+
+* Node 26 is required, the hosted connector moves from Vercel to kaiten-mcp.aimuzov.online, and @aimuzov/kaiten-mcp-core is no longer published.
+
+### Features
+
+* move to infra-mcp-kit and host the connector on the projects server ([5d6d45c](https://github.com/aimuzov/kaiten-mcp/commit/5d6d45c5f6f8056b23d6a7ee2eb4262b28799482))
+
+
+### Bug Fixes
+
+* **client:** stop retrying writes after 5xx and reject non-JSON success ([c84f84a](https://github.com/aimuzov/kaiten-mcp/commit/c84f84a1261c9147379ec16697a833b5964d2ee6))
+* **config:** reject invalid environment values instead of hiding them ([09a06f1](https://github.com/aimuzov/kaiten-mcp/commit/09a06f171381ac32057526cbd2956805a412d50f))
+* guard Kaiten URLs and stop duplicate writes on retry ([703dd0e](https://github.com/aimuzov/kaiten-mcp/commit/703dd0e1896cc52cca8dfd3048e2829958d2b16d))
+* **http:** guard form-supplied Kaiten URLs and explain login failures ([de4c7c5](https://github.com/aimuzov/kaiten-mcp/commit/de4c7c5eeec64ffc3b4b265d64a68da998a13055))
+
+
+### Performance Improvements
+
+* **cli:** load the HTTP connector lazily ([010bfcb](https://github.com/aimuzov/kaiten-mcp/commit/010bfcb23d22d5cde9f9086a11e4aa8aa56d9d20))
+
 ## [0.3.0](https://github.com/aimuzov/kaiten-mcp/compare/v0.2.0...v0.3.0) (2026-08-11)
 
 ### Features
