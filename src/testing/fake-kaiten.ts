@@ -5,13 +5,16 @@ export const GOOD_TOKEN = 'good-token'
 
 export type FakeRequest = { method: string; url: string; auth?: string; body: string }
 
-export type Route = (req: FakeRequest) => {
+export type Answer = {
 	status?: number
 	body?: unknown
 	/** Тело как есть, не JSON: HTML от прокси и подобное. */
 	raw?: string
 	headers?: Record<string, string>
 }
+
+/** Ответ на запрос. Промис -- для медленного Kaiten: таймаутов и лимита параллельных запросов. */
+export type Route = (req: FakeRequest) => Answer | Promise<Answer>
 
 export type FakeKaiten = {
 	/** Адрес API, как его отдаёт `normalizeApiUrl`. */
@@ -51,7 +54,7 @@ export async function fakeKaiten(routes: Record<string, Route> = {}): Promise<Fa
 		const path = new URL(request.url, 'http://x').pathname.replace(/^\/api\/latest/, '')
 		const route = routes[`${request.method} ${path}`]
 		const answer = route
-			? route(request)
+			? await route(request)
 			: path === '/users/current'
 				? { body: { id: 7, full_name: 'Тест Тестов' } }
 				: { status: 404, body: { message: 'Not found' } }
