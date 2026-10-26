@@ -17,7 +17,12 @@ export default defineConfig({
 				repo: 'https://github.com/aimuzov/kaiten-mcp',
 				tagline: 'Карточки, доски и планирование дня Kaiten прямо из Claude',
 				lead: 'Добавь адрес коннектора в Claude и войди своим API-токеном Kaiten.',
-				tools: ['Карточки и доски', 'Комментарии и чек-листы', 'Учёт времени', 'План на день'],
+				tools: [
+					{ label: 'Карточки и доски', icon: 'kanban' },
+					{ label: 'Комментарии и чек-листы', icon: 'list-checks' },
+					{ label: 'Учёт времени', icon: 'timer' },
+					{ label: 'План на день', icon: 'calendar-check' },
+				],
 				// Фиолетовый, красный и бирюзовый -- цвета Kaiten с kaiten.ru, знак -- из его фавикона.
 				// Он обозначает сервис, к которому подключается коннектор, а подпись автора остаётся в футере.
 				accent: { light: '#7d4ccf', dark: '#ad73fe' },
