@@ -1,22 +1,25 @@
 <script lang="ts">
 	import type { TokenField } from '@aimuzov/infra-mcp-kit/astro'
 	import TokenForm from '@aimuzov/infra-mcp-kit/astro/components/token-form.svelte'
+	import { pt } from '@aimuzov/infra-mcp-kit/astro/lib/i18n.ts'
+
+	let { locale = 'ru' }: { locale?: string } = $props()
 
 	// Имена полей те же, что у `kaitenLogin` в `src/http.ts`:
 	// по ним сервер собирает значения.
-	const url: TokenField = {
+	const url: TokenField = $derived({
 		name: 'kaiten_url',
-		label: 'Адрес Kaiten',
+		label: pt(locale, 'kaiten.url'),
 		type: 'url',
 		placeholder: 'https://your-domain.kaiten.ru',
-		hint: 'Тот, что открываешь в браузере',
-	}
-	const token: TokenField = {
+		hint: pt(locale, 'kaiten.urlHint'),
+	})
+	const token: TokenField = $derived({
 		name: 'kaiten_token',
-		label: 'API-токен Kaiten',
+		label: pt(locale, 'kaiten.token'),
 		type: 'password',
-		hint: 'Профиль → API-ключи → Создать',
-	}
+		hint: pt(locale, 'kaiten.tokenHint'),
+	})
 
 	// Страница статическая, а KAITEN_API_URL известен только серверу: если адрес задан там,
 	// сервер кладёт `kaitenUrl=fixed` во фрагмент, и поле адреса пропадает после гидрации.
@@ -28,7 +31,8 @@
 </script>
 
 <TokenForm
-	title="Подключение к Kaiten"
-	lead="Токен нужен только для твоих запросов. Он шифруется в токен доступа и на сервере не хранится."
+	title={pt(locale, 'kaiten.loginTitle')}
+	lead={pt(locale, 'kaiten.loginLead')}
 	fields={fixedUrl ? [token] : [url, token]}
+	{locale}
 />

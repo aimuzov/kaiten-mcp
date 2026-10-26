@@ -91,13 +91,15 @@ async function authorize(url: string): Promise<string> {
 	return new URL(res.headers.get('location') ?? '', url).href
 }
 
-type OpenOptions = { scheme?: 'light' | 'dark'; width?: number }
+type OpenOptions = { scheme?: 'light' | 'dark'; width?: number; locale?: string }
 
-async function open(href: string, { scheme = 'light', width = 1280 }: OpenOptions = {}): Promise<Page> {
+async function open(href: string, { scheme = 'light', width = 1280, locale }: OpenOptions = {}): Promise<Page> {
+	// `locale` браузера уходит в Accept-Language: по нему сервер выбирает язык страниц.
 	const context = await browser.newContext({
 		viewport: { width, height: width < 600 ? 844 : 900 },
 		colorScheme: scheme,
 		deviceScaleFactor: 2,
+		locale,
 	})
 	const page = await context.newPage()
 
@@ -173,6 +175,49 @@ describe('страницы kaiten', () => {
 
 				await hydrated(login)
 				await login.screenshot({ path: join(SHOTS, `login-${scheme}-${size}.png`), fullPage: true })
+				await login.context().close()
+			}
+		}
+	})
+
+	test('английский браузер получает английские страницы и ошибки входа', async () => {
+		const url = await start()
+		const landing = await open(url, { locale: 'en-US' })
+
+		assert.equal(new URL(landing.url()).pathname, '/en/')
+		assert.equal(await landing.locator('html').getAttribute('lang'), 'en')
+		assert.match(await landing.locator('main').innerText(), /Cards, boards and day planning/)
+		assert.match(await landing.locator('main').innerText(), /Comments and checklists/)
+		await landing.context().close()
+
+		const login = await open(await authorize(url), { locale: 'en-US' })
+
+		await hydrated(login)
+		assert.equal(new URL(login.url()).pathname, '/en/login')
+		assert.match(await login.locator('main').innerText(), /Connecting to Kaiten/)
+		await login.fill('input[name=kaiten_url]', kaiten.apiUrl)
+		await login.fill('input[name=kaiten_token]', 'bad')
+		await login.click('button[type=submit]')
+		await login.getByText('Kaiten did not recognize this token').waitFor()
+		assert.equal(new URL(login.url()).pathname, '/en/login')
+		await login.context().close()
+	})
+
+	test('английские скриншоты лендинга и входа в обеих темах', async () => {
+		const url = await start()
+
+		for (const scheme of ['light', 'dark'] as const) {
+			for (const width of [1280, 390]) {
+				const size = width < 600 ? 'mobile' : 'desktop'
+				const landing = await open(new URL('/en/', url).href, { scheme, width })
+
+				await landing.screenshot({ path: join(SHOTS, `en.landing-${scheme}-${size}.png`), fullPage: true })
+				await landing.context().close()
+
+				const login = await open((await authorize(url)).replace('/login', '/en/login'), { scheme, width })
+
+				await hydrated(login)
+				await login.screenshot({ path: join(SHOTS, `en.login-${scheme}-${size}.png`), fullPage: true })
 				await login.context().close()
 			}
 		}
