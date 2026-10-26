@@ -1,6 +1,6 @@
 {
 	"name": "@aimuzov/kaiten-mcp",
-	"version": "1.2.1",
+	"version": "1.2.2",
 	"description": "MCP server for Kaiten: spaces, boards, cards, comments, checklists, time tracking and day planning from any MCP client, over stdio or as a hosted connector",
 	"keywords": [
 		"kaiten",
