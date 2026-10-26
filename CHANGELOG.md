@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.3.0](https://github.com/aimuzov/kaiten-mcp/compare/v1.2.2...v1.3.0) (2026-10-26)
+
+
+### Features
+
+* **ui:** follow the Kaiten brand on the connector pages ([58a8e7e](https://github.com/aimuzov/kaiten-mcp/commit/58a8e7ec324086025fe22b915ee45539df235bcb))
+* **ui:** follow the Kaiten brand on the connector pages ([2282d5d](https://github.com/aimuzov/kaiten-mcp/commit/2282d5df90952f46ea4973857b90d2dfb1c8f5e5))
+* **ui:** give the Kaiten tool chips icons ([83bc9e8](https://github.com/aimuzov/kaiten-mcp/commit/83bc9e870ca9a745b51b1b0ded144cdf7afd63af))
+
 ## [1.2.2](https://github.com/aimuzov/kaiten-mcp/compare/v1.2.1...v1.2.2) (2026-10-25)
 
 
