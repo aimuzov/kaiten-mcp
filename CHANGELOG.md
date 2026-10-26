@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.0](https://github.com/aimuzov/kaiten-mcp/compare/v1.3.0...v1.4.0) (2026-10-26)
+
+
+### Features
+
+* serve the connector pages in English too ([9ee51a4](https://github.com/aimuzov/kaiten-mcp/commit/9ee51a4a844ea4399f4b1a90f4ae0012a9ff0485))
+* serve the connector pages in English too ([cb8a0ea](https://github.com/aimuzov/kaiten-mcp/commit/cb8a0ea6104e7b52684360b84fdf117a2a4dcf25))
+
 ## [1.3.0](https://github.com/aimuzov/kaiten-mcp/compare/v1.2.2...v1.3.0) (2026-10-26)
 
 
