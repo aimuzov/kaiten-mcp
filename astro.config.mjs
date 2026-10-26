@@ -28,7 +28,35 @@ export default defineConfig({
 				accent: { light: '#7d4ccf', dark: '#ad73fe' },
 				glitch: { a: '#f11f24', b: '#5fe8b0' },
 				logo: './src/frontend/assets/kaiten-mark.svg',
+				// Английский: переводы полей выше по ключам кита и строки своей страницы входа.
+				strings: {
+					en: {
+						'service.tagline': 'Cards, boards and day planning of Kaiten right from Claude',
+						'service.lead': 'Add the connector address to Claude and sign in with your Kaiten API token.',
+						'tool.Карточки и доски': 'Cards and boards',
+						'tool.Комментарии и чек-листы': 'Comments and checklists',
+						'tool.Учёт времени': 'Time tracking',
+						'tool.План на день': 'Plan for the day',
+						'kaiten.loginTitle': 'Connecting to Kaiten',
+						'kaiten.loginLead':
+							'The token is only used for your requests. It is encrypted into the access token and is not stored on the server.',
+						'kaiten.url': 'Kaiten address',
+						'kaiten.urlHint': 'The one you open in the browser',
+						'kaiten.token': 'Kaiten API token',
+						'kaiten.tokenHint': 'Profile → API keys → Create',
+					},
+					ru: {
+						'kaiten.loginTitle': 'Подключение к Kaiten',
+						'kaiten.loginLead':
+							'Токен нужен только для твоих запросов. Он шифруется в токен доступа и на сервере не хранится.',
+						'kaiten.url': 'Адрес Kaiten',
+						'kaiten.urlHint': 'Тот, что открываешь в браузере',
+						'kaiten.token': 'API-токен Kaiten',
+						'kaiten.tokenHint': 'Профиль → API-ключи → Создать',
+					},
+				},
 			},
+			locales: ['ru', 'en'],
 		}),
 	],
 })

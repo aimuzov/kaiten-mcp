@@ -96,8 +96,8 @@ export function kaitenLogin(config: Config, logger: Logger, guardUrl?: UrlGuard)
 	// Подписи и подсказки -- на странице `src/frontend/pages/_login.svelte`, здесь имена
 	// полей и подписи для текста ошибки. Адрес с KAITEN_API_URL не спрашиваем.
 	const fields = [
-		...(config.apiUrl ? [] : [{ name: 'kaiten_url', label: 'Адрес Kaiten' }]),
-		{ name: 'kaiten_token', label: 'API-токен Kaiten' },
+		...(config.apiUrl ? [] : [{ name: 'kaiten_url', label: { ru: 'Адрес Kaiten', en: 'Kaiten address' } }]),
+		{ name: 'kaiten_token', label: { ru: 'API-токен Kaiten', en: 'Kaiten API token' } },
 	]
 
 	const login = tokenFormLogin({
@@ -140,18 +140,26 @@ function parseHost(apiUrl: string): string {
 		// Ниже тот же ответ, что и для непонятной схемы.
 	}
 
-	throw new LoginError('Это не похоже на адрес Kaiten')
+	throw new LoginError({ ru: 'Это не похоже на адрес Kaiten', en: 'This does not look like a Kaiten address' })
 }
 
 /** Текст для формы по ошибке входа. Непонятные случаи уходят в лог как есть. */
 function loginError(error: unknown, host: string, logger: Logger): LoginError {
-	if (error instanceof UnsafeUrlError) return new LoginError(error.message)
+	if (error instanceof UnsafeUrlError) return new LoginError({ ru: error.message, en: error.en })
 
 	const status = error instanceof KaitenApiError ? error.status : undefined
 
-	if (status === 401 || status === 403) return new LoginError('Kaiten не узнал этот токен, проверь его и адрес')
+	if (status === 401 || status === 403)
+		return new LoginError({
+			ru: 'Kaiten не узнал этот токен, проверь его и адрес',
+			en: 'Kaiten did not recognize this token, check it and the address',
+		})
 
-	if (status === 404) return new LoginError(`По адресу ${host} нет Kaiten API, проверь адрес`)
+	if (status === 404)
+		return new LoginError({
+			ru: `По адресу ${host} нет Kaiten API, проверь адрес`,
+			en: `There is no Kaiten API at ${host}, check the address`,
+		})
 
 	logger.warn('Kaiten login check failed', {
 		host,
@@ -160,10 +168,16 @@ function loginError(error: unknown, host: string, logger: Logger): LoginError {
 	})
 
 	if (status !== undefined && status >= 300 && status < 400) {
-		return new LoginError(`${host} отвечает редиректом, укажи адрес, который открываешь в браузере`)
+		return new LoginError({
+			ru: `${host} отвечает редиректом, укажи адрес, который открываешь в браузере`,
+			en: `${host} answers with a redirect, enter the address you open in the browser`,
+		})
 	}
 
-	return new LoginError(`Не получилось достучаться до Kaiten по адресу ${host}.`)
+	return new LoginError({
+		ru: `Не получилось достучаться до Kaiten по адресу ${host}.`,
+		en: `Could not reach Kaiten at ${host}.`,
+	})
 }
 
 export type HostedOptions = {

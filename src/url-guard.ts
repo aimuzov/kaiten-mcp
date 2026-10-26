@@ -3,9 +3,13 @@ import { BlockList, isIP } from 'node:net'
 
 /** Адрес, куда коннектор не пойдёт. Текст можно показать человеку. */
 export class UnsafeUrlError extends Error {
-	constructor(message: string) {
+	/** Тот же текст по-английски: его покажет английская страница входа. */
+	readonly en: string
+
+	constructor(message: string, en: string = message) {
 		super(message)
 		this.name = 'UnsafeUrlError'
+		this.en = en
 	}
 }
 
@@ -70,10 +74,14 @@ export function publicUrlGuard(resolve: Resolve = resolveAll): UrlGuard {
 		try {
 			url = new URL(apiUrl)
 		} catch {
-			throw new UnsafeUrlError('Это не похоже на адрес Kaiten')
+			throw new UnsafeUrlError('Это не похоже на адрес Kaiten', 'This does not look like a Kaiten address')
 		}
 
-		if (url.protocol !== 'https:') throw new UnsafeUrlError('Адрес Kaiten должен начинаться с https://')
+		if (url.protocol !== 'https:')
+			throw new UnsafeUrlError(
+				'Адрес Kaiten должен начинаться с https://',
+				'The Kaiten address must start with https://',
+			)
 
 		const host = url.hostname.replace(/^\[(.*)\]$/, '$1')
 		let addresses: string[]
@@ -81,11 +89,14 @@ export function publicUrlGuard(resolve: Resolve = resolveAll): UrlGuard {
 		try {
 			addresses = await resolve(host)
 		} catch {
-			throw new UnsafeUrlError(`Не нашёл хост ${host}`)
+			throw new UnsafeUrlError(`Не нашёл хост ${host}`, `Could not find the host ${host}`)
 		}
 
 		if (addresses.length === 0 || addresses.some(isInternalAddress)) {
-			throw new UnsafeUrlError(`${host} ведёт во внутреннюю сеть, такой адрес не подойдёт`)
+			throw new UnsafeUrlError(
+				`${host} ведёт во внутреннюю сеть, такой адрес не подойдёт`,
+				`${host} leads into an internal network, this address will not do`,
+			)
 		}
 	}
 }
