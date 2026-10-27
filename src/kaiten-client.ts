@@ -18,12 +18,15 @@ export type RequestOptions = {
 export class KaitenApiError extends Error {
 	readonly status?: number
 	readonly details?: unknown
+	/** Сообщение без текста из ответа Kaiten, там бывает чужой текст. Его видит Sentry. */
+	readonly summary: string
 
-	constructor(message: string, status?: number, details?: unknown) {
+	constructor(message: string, status?: number, details?: unknown, summary = message) {
 		super(message)
 		this.name = 'KaitenApiError'
 		this.status = status
 		this.details = details
+		this.summary = summary
 	}
 }
 
@@ -216,7 +219,8 @@ export class KaitenClient {
 	}
 
 	private apiError(status: number, data: unknown, method: Method, path: string): KaitenApiError {
-		let message = `Kaiten API ${method} ${path} failed (HTTP ${status})`
+		const summary = `Kaiten API ${method} ${path} failed (HTTP ${status})`
+		let message = summary
 
 		if (data && typeof data === 'object') {
 			const detail = (data as Record<string, unknown>).message ?? (data as Record<string, unknown>).error
@@ -228,7 +232,7 @@ export class KaitenClient {
 
 		this.logger.error('Kaiten request failed', { method, path, status })
 
-		return new KaitenApiError(message, status, data)
+		return new KaitenApiError(message, status, data, summary)
 	}
 
 	private networkError(error: unknown, method: Method, path: string): KaitenApiError {

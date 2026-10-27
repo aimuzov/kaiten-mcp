@@ -1,6 +1,8 @@
 import { readVersion, type McpServer } from '@aimuzov/infra-mcp-kit'
 import * as Sentry from '@sentry/node'
 
+import { KaitenApiError } from './kaiten-client.ts'
+
 /**
  * Sentry включается только с `SENTRY_DSN`: он задан у коннектора на сервере, а у stdio
  * на машине человека и в разработке его нет, и SDK не стартует. Только ошибки, без
@@ -14,6 +16,8 @@ export function initSentry(env: NodeJS.ProcessEnv = process.env, options: Sentry
 		dsn: env.SENTRY_DSN,
 		environment: 'production',
 		release: `kaiten-mcp@${readVersion(import.meta.url)}`,
+		// Без нуля SDK взял бы SENTRY_TRACES_SAMPLE_RATE из окружения.
+		tracesSampleRate: 0,
 		dataCollection: {
 			userInfo: false,
 			cookies: false,
@@ -22,11 +26,22 @@ export function initSentry(env: NodeJS.ProcessEnv = process.env, options: Sentry
 			urlQueryParams: false,
 			stackFrameVariables: false,
 		},
+		beforeSend: hideKaitenDetail,
 		beforeBreadcrumb: stripQuery,
 		...options,
 	})
 
 	return true
+}
+
+/** Модели ошибка Kaiten уходит целиком, а в Sentry -- без текста из ответа. */
+export function hideKaitenDetail(event: Sentry.ErrorEvent, hint: Sentry.EventHint): Sentry.ErrorEvent {
+	const error = hint.originalException
+	const exception = event.exception?.values?.at(-1)
+
+	if (error instanceof KaitenApiError && exception) exception.value = error.summary
+
+	return event
 }
 
 /**
