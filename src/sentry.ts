@@ -54,7 +54,7 @@ export function tagToolCalls(server: McpServer): void {
 
 	server.registerTool = ((name: string, config: unknown, handler: (...args: unknown[]) => unknown) =>
 		register(name, config, (...args) =>
-			Sentry.withScope((scope) => {
+			Sentry.withScope((scope: Sentry.Scope) => {
 				scope.setTag('mcp.tool.name', name)
 
 				return handler(...args)

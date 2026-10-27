@@ -31,7 +31,7 @@ test('ошибка инструмента уходит в Sentry с именем
 		initSentry(
 			{ SENTRY_DSN: 'https://key@o0.ingest.sentry.io/0' },
 			{
-				beforeSend: (event) => {
+				beforeSend: (event: Sentry.ErrorEvent) => {
 					events.push(event)
 
 					return null
