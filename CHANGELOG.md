@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.1](https://github.com/aimuzov/kaiten-mcp/compare/v1.5.0...v1.5.1) (2026-10-27)
+
+
+### Bug Fixes
+
+* **deps:** move to infra-mcp-kit 3.4.0 and infra-site-kit 5.8.1 ([c7d37db](https://github.com/aimuzov/kaiten-mcp/commit/c7d37db919453a5d291f8106348fd8bcd8a522c6))
+* **deps:** move to infra-mcp-kit 3.4.0 and infra-site-kit 5.8.1 ([c186b5c](https://github.com/aimuzov/kaiten-mcp/commit/c186b5cba1eb8fa92280a2845891da34eb302534))
+
 ## [1.5.0](https://github.com/aimuzov/kaiten-mcp/compare/v1.4.1...v1.5.0) (2026-10-27)
 
 
