@@ -1,4 +1,5 @@
 import { failure, text, type CallToolResult, type Logger, type McpServer } from '@aimuzov/infra-mcp-kit'
+import * as Sentry from '@sentry/node'
 
 import type { Config } from '#kaiten/config'
 import type { KaitenClient } from '#kaiten/kaiten-client'
@@ -30,6 +31,8 @@ export async function run(
 		return jsonText(await fn(ctx.getClient(extra)))
 	} catch (error) {
 		ctx.logger.error('Tool execution failed', { message: error instanceof Error ? error.message : String(error) })
+		// Модель получит ошибку ответом, и без этого в Sentry её не будет. Аргументы вызова не уходят.
+		Sentry.captureException(error)
 
 		return failure(error)
 	}

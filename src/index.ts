@@ -3,6 +3,7 @@ import { createLogger, loadEnvFile, runCli } from '@aimuzov/infra-mcp-kit'
 
 import { loadConfig } from './config.ts'
 import { CredentialsProvider } from './credentials.ts'
+import { initSentry } from './sentry.ts'
 import { createStdioServer, NAME, VERSION } from './server.ts'
 
 const USAGE = `Usage: kaiten-mcp [serve [--http] | --help | --version]
@@ -19,6 +20,7 @@ const USAGE = `Usage: kaiten-mcp [serve [--http] | --help | --version]
   KAITEN_MAX_CONCURRENT_REQUESTS  одновременных запросов на токен, 1-20, по умолчанию 5
   KAITEN_LOG_LEVEL                error | warn | info | debug, по умолчанию info
   KAITEN_LOG_FILE                 файл лога сверх stderr
+  SENTRY_DSN                      отправлять ошибки в Sentry, без него SDK не стартует
 
 Для serve --http:
   PUBLIC_URL             публичный адрес коннектора
@@ -29,6 +31,7 @@ const USAGE = `Usage: kaiten-mcp [serve [--http] | --help | --version]
 
 // .env рядом с запуском; переменные из конфига MCP-клиента главнее.
 loadEnvFile()
+initSentry()
 
 // Конфиг читается внутри команд: ошибка в окружении выйдет одной строкой, а --help
 // работает и с ней.
