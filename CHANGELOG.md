@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.5.0](https://github.com/aimuzov/kaiten-mcp/compare/v1.4.1...v1.5.0) (2026-10-27)
+
+
+### Features
+
+* report errors to Sentry when SENTRY_DSN is set ([c4bbb97](https://github.com/aimuzov/kaiten-mcp/commit/c4bbb9767550877fd543d9a2b3c6129bd3835554))
+* report errors to Sentry when SENTRY_DSN is set ([cce75f6](https://github.com/aimuzov/kaiten-mcp/commit/cce75f6af855badb18521bd3140817b0077fb4e7))
+
+
+### Bug Fixes
+
+* keep fetch error text out of Sentry events ([c8b07bd](https://github.com/aimuzov/kaiten-mcp/commit/c8b07bd1dfe24d5c30715e6cda79998f79a1db09))
+* keep Kaiten response text out of Sentry events ([a6ac1c9](https://github.com/aimuzov/kaiten-mcp/commit/a6ac1c9d54b687318371e201c3cd98ce9ea0bd11))
+* type Sentry callback params for astro check ([320b836](https://github.com/aimuzov/kaiten-mcp/commit/320b8368dc43b50ed7937831abd2e2e6b017e9cd))
+
 ## [1.4.1](https://github.com/aimuzov/kaiten-mcp/compare/v1.4.0...v1.4.1) (2026-10-27)
 
 
