@@ -278,6 +278,7 @@ describe('тексты ошибок', () => {
 			assert.ok(error instanceof KaitenApiError)
 			assert.equal(error.status, undefined)
 			assert.equal(error.message, 'Kaiten API GET /cards failed: fetch failed')
+			assert.equal(error.summary, 'Kaiten API GET /cards failed')
 
 			return true
 		})
@@ -299,6 +300,7 @@ describe('таймаут и лимит запросов', () => {
 
 		await assert.rejects(client(GOOD_TOKEN, cfg).get('/slow'), {
 			message: 'Kaiten API GET /slow failed: таймаут запроса',
+			summary: 'Kaiten API GET /slow failed: таймаут запроса',
 		})
 
 		const elapsed = performance.now() - started
