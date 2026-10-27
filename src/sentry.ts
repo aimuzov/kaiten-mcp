@@ -26,6 +26,12 @@ export function initSentry(env: NodeJS.ProcessEnv = process.env, options: Sentry
 			urlQueryParams: false,
 			stackFrameVariables: false,
 		},
+		// Без сессий процесса и запросов и без отчётов SDK о себе: их он шлёт и без ошибок.
+		sendClientReports: false,
+		integrations: <T extends { name: string }>(defaults: T[]) => [
+			...defaults.filter(({ name }) => name !== 'ProcessSession' && name !== 'Http'),
+			Sentry.httpIntegration({ sessions: false }),
+		],
 		beforeSend: hideKaitenDetail,
 		beforeBreadcrumb: stripQuery,
 		...options,
