@@ -241,7 +241,15 @@ export class KaitenClient {
 
 		this.logger.error('Kaiten request failed', { method, path, reason })
 
-		return new KaitenApiError(`Kaiten API ${method} ${path} failed: ${reason}`)
+		const message = `Kaiten API ${method} ${path} failed: ${reason}`
+
+		// Текст ошибки fetch может нести адрес с query, в Sentry его не шлём. Таймаут -- наш.
+		return new KaitenApiError(
+			message,
+			undefined,
+			undefined,
+			timeout ? message : `Kaiten API ${method} ${path} failed`,
+		)
 	}
 
 	get<T = unknown>(path: string, params?: Params): Promise<T> {
