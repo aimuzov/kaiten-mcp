@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.1](https://github.com/aimuzov/kaiten-mcp/compare/v1.4.0...v1.4.1) (2026-10-27)
+
+
+### Bug Fixes
+
+* **deps:** move to infra-mcp-kit 3.2.1 on tmcp 1.20.1 ([f34f6e3](https://github.com/aimuzov/kaiten-mcp/commit/f34f6e37597f12dadab3925b64c1c198a7306877))
+* **deps:** move to infra-mcp-kit 3.2.1 on tmcp 1.20.1 ([b9d6e3b](https://github.com/aimuzov/kaiten-mcp/commit/b9d6e3b5a20030913a8bf0bbfe466e945a785e49))
+
 ## [1.4.0](https://github.com/aimuzov/kaiten-mcp/compare/v1.3.0...v1.4.0) (2026-10-26)
 
 
