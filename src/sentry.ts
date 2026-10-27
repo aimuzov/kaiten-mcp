@@ -9,7 +9,10 @@ import { KaitenApiError } from './kaiten-client.ts'
  * трейсинга. О пользователе SDK ничего не собирает: ни заголовки и тела запросов, ни query,
  * ни локальные переменные в стеке, где лежат аргументы инструментов и токены.
  */
-export function initSentry(env: NodeJS.ProcessEnv = process.env, options: Sentry.NodeOptions = {}): boolean {
+export function initSentry(
+	env: NodeJS.ProcessEnv = process.env,
+	options: Partial<Pick<Sentry.NodeOptions, 'transport'>> = {},
+): boolean {
 	if (!env.SENTRY_DSN) return false
 
 	Sentry.init({
