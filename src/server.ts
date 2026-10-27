@@ -3,6 +3,7 @@ import { McpServer, readVersion, type Logger } from '@aimuzov/infra-mcp-kit'
 import type { Config } from './config.ts'
 import type { CredentialElicitor, CredentialsProvider } from './credentials.ts'
 import { KaitenClient } from './kaiten-client.ts'
+import { tagToolCalls } from './sentry.ts'
 import type { ToolExtra } from './tools/helpers.ts'
 import { registerAllTools } from './tools/index.ts'
 
@@ -28,6 +29,7 @@ export type ServerOptions = {
 export function createServer({ config, logger, resolveClient }: ServerOptions, instructions = INSTRUCTIONS): McpServer {
 	const server = new McpServer({ name: NAME, version: VERSION }, { capabilities: { tools: {} }, instructions })
 
+	tagToolCalls(server)
 	registerAllTools({ server, logger, config, getClient: resolveClient })
 
 	return server
