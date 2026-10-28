@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.2](https://github.com/aimuzov/kaiten-mcp/compare/v1.5.1...v1.5.2) (2026-10-28)
+
+
+### Bug Fixes
+
+* **deps:** move to infra-mcp-kit 3.4.1 with the strict Sentry events ([00f6cde](https://github.com/aimuzov/kaiten-mcp/commit/00f6cde2dda0df7064f79bcd65a44d7ea466149b))
+* **deps:** move to infra-mcp-kit 3.4.1 with the strict Sentry events ([c6656a9](https://github.com/aimuzov/kaiten-mcp/commit/c6656a9fd37f12e500c1e76f9d930a61c84ed410))
+
 ## [1.5.1](https://github.com/aimuzov/kaiten-mcp/compare/v1.5.0...v1.5.1) (2026-10-27)
 
 
