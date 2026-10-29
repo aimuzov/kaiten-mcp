@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.3](https://github.com/aimuzov/kaiten-mcp/compare/v1.5.2...v1.5.3) (2026-10-29)
+
+
+### Bug Fixes
+
+* **deps:** take infra-mcp-kit from npm ([42fe0cb](https://github.com/aimuzov/kaiten-mcp/commit/42fe0cbc1835c98068f1602196bd32a62aa721e1))
+* **deps:** take infra-mcp-kit from npm ([a22ac27](https://github.com/aimuzov/kaiten-mcp/commit/a22ac2785c725c30229e0c553daf38f6c7c4a909))
+
 ## [1.5.2](https://github.com/aimuzov/kaiten-mcp/compare/v1.5.1...v1.5.2) (2026-10-28)
 
 
