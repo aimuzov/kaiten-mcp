@@ -90,7 +90,6 @@ jobs:
     if: >-
       !cancelled() && (inputs.build_only ||
       (vars.DEPLOY_ENABLED == 'true' && vars.DEPLOY_FROM_GHCR == 'true' &&
-      (needs.release.outputs.tag || inputs.tag) != '' &&
       (github.event_name == 'workflow_dispatch' || needs.check.result == 'success')))
     permissions:
       contents: read
@@ -112,7 +111,7 @@ jobs:
     steps:
       - id: request
         env:
-          TAG: ${{ needs.release.outputs.tag || inputs.tag }}
+          TAG: ${{ needs.release.outputs.tag || inputs.tag || 'main' }}
           REVISION: ${{ needs.build-image.outputs.revision }}
           IMAGE: ${{ needs.build-image.outputs.image }}
         run: |
