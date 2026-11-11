@@ -3,20 +3,19 @@
 FROM node:26.11.1-alpine AS build
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN --mount=type=cache,target=/root/.npm npm ci --no-audit --no-fund
 COPY tsconfig.json tsconfig.build.json astro.config.mjs svelte.config.js postcss.config.mjs ./
 COPY src ./src
 # Сборка: сервер в build/ и страницы Astro в build/public.
-# Astro и Svelte -- devDependencies, после prune в образ они не попадают.
-# --omit=optional: SDK (опциональный peer кита для тестов) и typescript (peer valibot
-# из tmcp) npm помечает devOptional, и одно --omit=dev их оставляет -- плюс 30 МБ.
-RUN npm run build && npm prune --omit=dev --omit=optional
+RUN npm run build
 
 FROM node:26.11.1-alpine
 WORKDIR /app
 ENV NODE_ENV=production
-COPY --from=build /app/package.json ./
-COPY --from=build /app/node_modules ./node_modules
+COPY package.json ./
+RUN --mount=type=cache,target=/root/.npm \
+    --mount=type=bind,source=package-lock.json,target=/app/package-lock.json \
+    npm ci --omit=dev --omit=optional --no-audit --no-fund
 COPY --from=build /app/build ./build
 # auth.db с клиентами OAuth лежит в томе. Каталог создаём здесь, чтобы пустой том
 # унаследовал владельца node и сервер мог в него писать.
